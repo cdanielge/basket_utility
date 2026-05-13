@@ -161,6 +161,7 @@
     <div class="clock-ctrl">
       <button class="btn-main go" id="startStopBtn" onclick="toggleClock()">▶ START</button>
       <button class="btn-main danger" onclick="resetAll()">↺ RESET</button>
+      <button class="btn-main" id="fsBtn" onclick="toggleFullscreen()">⛶ FS</button>
     </div>
   </div>
 
@@ -286,6 +287,19 @@
     document.getElementById('clockWrap').className      = 'clock-wrap stopped';
     renderClock(); renderScores();
   }
+
+  /* ── Fullscreen ── */
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+  document.addEventListener('fullscreenchange', () => {
+    const btn = document.getElementById('fsBtn');
+    btn.textContent = document.fullscreenElement ? '✕ EXIT FS' : '⛶ FS';
+  });
 
   renderClock(); renderScores();
 </script>
