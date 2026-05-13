@@ -242,7 +242,7 @@
       btn.textContent = '⏸ PAUSE'; btn.className = 'btn-main';
       wrap.className  = 'clock-wrap running';
       s.iv = setInterval(() => {
-        if (s.secs > 0) { s.secs--; renderClock(); }
+        if (s.secs > 0) { s.secs--; renderClock(); if (s.secs <= 10) beepTick(); }
         else {
           clearInterval(s.iv); s.running = false;
           btn.textContent = '▶ START'; btn.className = 'btn-main go';
@@ -296,6 +296,22 @@
     document.getElementById('startStopBtn').className   = 'btn-main go';
     document.getElementById('clockWrap').className      = 'clock-wrap stopped';
     renderClock(); renderScores();
+  }
+
+  /* ── Tick beep (last 10 s) ── */
+  function beepTick() {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 1200;
+    osc.connect(gain);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.12);
+    osc.onended = () => ctx.close();
   }
 
   /* ── Buzzer ── */
