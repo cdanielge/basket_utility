@@ -72,6 +72,16 @@
   .running .clock-sep { animation: blink 1s step-end infinite; }
   @keyframes blink { 50% { opacity: 0; } }
 
+  /* ── Buzzer flash ── */
+  @keyframes buzzer-flash {
+    0%,100% { background: var(--bg); }
+    10%,30%,50%,70%,90% { background: #ff2200; }
+    20%,40%,60%,80% { background: var(--bg); }
+  }
+  body.buzzing { animation: buzzer-flash .9s ease-out forwards; }
+  body.buzzing .clock-num,
+  body.buzzing .clock-sep { color: #fff; text-shadow: 0 0 40px #fff, 0 0 80px #ff2200; }
+
   .clock-ctrl {
     display: flex;
     gap: 10px;
@@ -237,6 +247,7 @@
           clearInterval(s.iv); s.running = false;
           btn.textContent = '▶ START'; btn.className = 'btn-main go';
           wrap.className  = 'clock-wrap stopped';
+          buzzEnd();
         }
       }, 1000);
     } else {
@@ -285,6 +296,28 @@
     document.getElementById('startStopBtn').className   = 'btn-main go';
     document.getElementById('clockWrap').className      = 'clock-wrap stopped';
     renderClock(); renderScores();
+  }
+
+  /* ── Buzzer ── */
+  function buzzEnd() {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.9, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4);
+
+    [80, 160, 240].forEach(freq => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 1.4);
+    });
+
+    document.body.classList.add('buzzing');
+    setTimeout(() => document.body.classList.remove('buzzing'), 900);
+    setTimeout(() => ctx.close(), 1500);
   }
 
   /* ── Fullscreen ── */
