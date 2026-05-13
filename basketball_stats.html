@@ -234,7 +234,7 @@ body {
 /* ── Game info strip ── */
 .game-info {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
@@ -440,6 +440,8 @@ tr.row-foul4 td { background: rgba(245,165,36,.08) !important; }
 .cnt-val:hover { background: rgba(255,255,255,.07); }
 .cnt-val:active { transform: scale(.9); }
 .cnt-val.pts-accent { color: var(--gold); font-size: 18px; font-weight: 800; }
+.cnt-val.pts-readonly { cursor: default; }
+.cnt-val.pts-readonly:hover { background: transparent; }
 .cnt-val.cnt-shot { color: var(--blue); }
 .cnt-val.cnt-shot:hover { background: rgba(61,142,248,.15); }
 .cnt-val.cnt-att { color: var(--txt3); font-size: 13px; font-weight: 600; min-width: 22px; }
@@ -678,23 +680,6 @@ th.th-shot { color: var(--blue) !important; }
       <div class="logo-icon"><i class="ti ti-ball-basketball" style="color:#fff;font-size:20px"></i></div>
       <div class="logo-text">BBALL<span>STATS</span></div>
     </div>
-    <div class="header-divider"></div>
-    <div class="scoreboard">
-      <span class="score-label">Score</span>
-      <div class="score-box">
-        <div class="score-team">
-          <span class="score-name" id="hdr-local">LOCAL</span>
-          <span class="score-val"><input id="res-local" placeholder="—" type="text" maxlength="3" oninput="saveMeta()"></span>
-        </div>
-        <div class="score-sep"></div>
-        <span class="score-dash">–</span>
-        <div class="score-sep"></div>
-        <div class="score-team">
-          <span class="score-val"><input id="res-rival" placeholder="—" type="text" maxlength="3" oninput="saveMeta()"></span>
-          <span class="score-name" id="hdr-rival">RIVAL</span>
-        </div>
-      </div>
-    </div>
     <div class="header-actions">
       <div class="save-pill" id="save-indicator">
         <i class="ti ti-device-floppy"></i>
@@ -716,14 +701,6 @@ th.th-shot { color: var(--blue) !important; }
 
   <!-- Game meta strip -->
   <div class="game-info">
-    <div class="info-cell">
-      <div class="info-cell-label">Equipo</div>
-      <input id="meta-equipo" placeholder="Nombre del equipo" type="text" oninput="saveMeta()">
-    </div>
-    <div class="info-cell">
-      <div class="info-cell-label">Rival</div>
-      <input id="meta-rival" placeholder="Equipo rival" type="text" oninput="saveMeta()">
-    </div>
     <div class="info-cell">
       <div class="info-cell-label">Fecha</div>
       <input id="meta-fecha" type="date" oninput="saveMeta()">
@@ -845,30 +822,13 @@ function saveToStorage() {
 }
 
 function applyMetaToDOM() {
-  document.getElementById('meta-equipo').value = meta.equipo || '';
-  document.getElementById('meta-rival').value  = meta.rival  || '';
-  document.getElementById('meta-fecha').value  = meta.fecha  || '';
-  document.getElementById('meta-lugar').value  = meta.lugar  || '';
-  document.getElementById('res-local').value   = meta.resLocal  || '';
-  document.getElementById('res-rival').value   = meta.resRival  || '';
-  updateHeaderNames();
-}
-
-function updateHeaderNames() {
-  const loc = meta.equipo ? meta.equipo.toUpperCase().slice(0,10) : 'LOCAL';
-  const riv = meta.rival  ? meta.rival.toUpperCase().slice(0,10)  : 'RIVAL';
-  document.getElementById('hdr-local').textContent = loc;
-  document.getElementById('hdr-rival').textContent = riv;
+  document.getElementById('meta-fecha').value = meta.fecha || '';
+  document.getElementById('meta-lugar').value = meta.lugar || '';
 }
 
 function saveMeta() {
-  meta.equipo   = document.getElementById('meta-equipo').value;
-  meta.rival    = document.getElementById('meta-rival').value;
-  meta.fecha    = document.getElementById('meta-fecha').value;
-  meta.lugar    = document.getElementById('meta-lugar').value;
-  meta.resLocal = document.getElementById('res-local').value;
-  meta.resRival = document.getElementById('res-rival').value;
-  updateHeaderNames();
+  meta.fecha = document.getElementById('meta-fecha').value;
+  meta.lugar = document.getElementById('meta-lugar').value;
   saveToStorage();
 }
 
@@ -999,21 +959,29 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function shotClick(id, key, ptsVal) {
+const _clickTimers = {};
+const DBL_DELAY = 230;
+
+function statClick(id, key, e) {
   const k = id + '_' + key;
-  if (_clickTimers[k]) {
-    clearTimeout(_clickTimers[k]);
-    delete _clickTimers[k];
-    const p = stats.find(x => x.id === id);
-    if (!p || p[key] <= 0) return;
-    p[key]--;
-    p.pts = Math.max(0, p.pts - ptsVal);
-    saveToStorage();
-    updateStatCell(id, key, p[key]);
-    updateStatCell(id, 'pts', p.pts);
-    flashStat(id, key, 'dec');
-    flashStat(id, 'pts', 'dec');
+  clearTimeout(_clickTimers[k]);
+  if (e.detail === 1) {
+    _clickTimers[k] = setTimeout(() => {
+      delete _clickTimers[k];
+      inc(id, key);
+      flashStat(id, key, 'inc');
+    }, DBL_DELAY);
   } else {
+    delete _clickTimers[k];
+    dec(id, key);
+    flashStat(id, key, 'dec');
+  }
+}
+
+function shotClick(id, key, ptsVal, e) {
+  const k = id + '_' + key;
+  clearTimeout(_clickTimers[k]);
+  if (e.detail === 1) {
     _clickTimers[k] = setTimeout(() => {
       delete _clickTimers[k];
       const p = stats.find(x => x.id === id);
@@ -1025,24 +993,18 @@ function shotClick(id, key, ptsVal) {
       updateStatCell(id, 'pts', p.pts);
       flashStat(id, key, 'inc');
       flashStat(id, 'pts', 'inc');
-    }, 230);
-  }
-}
-
-const _clickTimers = {};
-function statClick(id, key) {
-  const k = id + '_' + key;
-  if (_clickTimers[k]) {
-    clearTimeout(_clickTimers[k]);
-    delete _clickTimers[k];
-    dec(id, key);
-    flashStat(id, key, 'dec');
+    }, DBL_DELAY);
   } else {
-    _clickTimers[k] = setTimeout(() => {
-      delete _clickTimers[k];
-      inc(id, key);
-      flashStat(id, key, 'inc');
-    }, 230);
+    delete _clickTimers[k];
+    const p = stats.find(x => x.id === id);
+    if (!p || p[key] <= 0) return;
+    p[key]--;
+    p.pts = Math.max(0, p.pts - ptsVal);
+    saveToStorage();
+    updateStatCell(id, key, p[key]);
+    updateStatCell(id, 'pts', p.pts);
+    flashStat(id, key, 'dec');
+    flashStat(id, 'pts', 'dec');
   }
 }
 function flashStat(id, key, dir) {
@@ -1058,16 +1020,16 @@ function flashStat(id, key, dir) {
 function mkCounter(id, key, val, accent) {
   const cls = accent ? 'cnt-val pts-accent' : 'cnt-val';
   return '<td><div class="counter">' +
-    '<span class="' + cls + '" data-stat="' + key + '" onclick="statClick(' + id + ',\'' + key + '\')" title="Click: +1 · Doble click: -1">' + val + '</span>' +
+    '<span class="' + cls + '" data-stat="' + key + '" onclick="statClick(' + id + ',\'' + key + '\',event)" title="Click: +1 · Doble click: -1">' + val + '</span>' +
     '</div></td>';
 }
 
 function mkShotCounter(id, keyMade, keyAtt, valMade, valAtt, ptsVal) {
   const label = ptsVal === 1 ? '+1pt' : '+2pts';
   return '<td><div class="counter" style="gap:2px">' +
-    '<span class="cnt-val cnt-shot" data-stat="' + keyMade + '" onclick="shotClick(' + id + ',\'' + keyMade + '\',' + ptsVal + ')" title="Click: ' + label + ' · Doble click: -' + ptsVal + 'pt">' + valMade + '</span>' +
+    '<span class="cnt-val cnt-shot" data-stat="' + keyMade + '" onclick="shotClick(' + id + ',\'' + keyMade + '\',' + ptsVal + ',event)" title="Click: ' + label + ' · Doble click: -' + ptsVal + 'pt">' + valMade + '</span>' +
     '<span class="shot-sep">/</span>' +
-    '<span class="cnt-val cnt-att" data-stat="' + keyAtt + '" onclick="statClick(' + id + ',\'' + keyAtt + '\')" title="Intentos · Click: +1 · Doble click: -1">' + valAtt + '</span>' +
+    '<span class="cnt-val cnt-att" data-stat="' + keyAtt + '" onclick="statClick(' + id + ',\'' + keyAtt + '\',event)" title="Intentos · Click: +1 · Doble click: -1">' + valAtt + '</span>' +
     '</div></td>';
 }
 
@@ -1095,7 +1057,7 @@ function createRow(p) {
     mkCounter(p.id, 'tp',    p.tp)    +
     mkShotCounter(p.id, 't1', 't1a', p.t1||0, p.t1a||0, 1) +
     mkShotCounter(p.id, 't2', 't2a', p.t2||0, p.t2a||0, 2) +
-    mkCounter(p.id, 'pts',   p.pts, true) +
+    '<td><div class="counter"><span class="cnt-val pts-accent pts-readonly" data-stat="pts">' + p.pts + '</span></div></td>' +
     '<td><button class="del-btn" onclick="deletePlayer(' + p.id + ')" aria-label="Eliminar"><i class="ti ti-x"></i></button></td>';
   return tr;
 }
@@ -1138,12 +1100,20 @@ function buildResumen() {
     wrap.innerHTML = '<p class="empty-msg">No data recorded yet</p>';
     return;
   }
-  const headers = ['Player','PTS','1PT','2PT','REB','AST','BLK','STL','FL'];
+  const pct = (m, a) => a > 0 ? Math.round((m / a) * 100) + '%' : '—';
+  const pctColor = (m, a) => {
+    if (!a) return 'var(--txt3)';
+    const r = m / a;
+    return r >= 0.5 ? 'var(--green)' : r >= 0.33 ? 'var(--amber)' : 'var(--red)';
+  };
+
+  const headers = ['Player','PTS','1PT','1PT%','2PT','2PT%','REB','AST','BLK','STL','FL'];
   wrap.innerHTML =
     '<table class="summary-table"><thead><tr>' +
-    headers.map((h,i) => {
-      const shotStyle = (h==='1PT'||h==='2PT') ? ' style="color:var(--blue)"' : '';
-      return '<th' + shotStyle + '>' + h + '</th>';
+    headers.map(h => {
+      if (h === '1PT' || h === '2PT') return '<th style="color:var(--blue)">' + h + '</th>';
+      if (h === '1PT%' || h === '2PT%') return '<th style="color:var(--txt3);font-style:italic">' + h + '</th>';
+      return '<th>' + h + '</th>';
     }).join('') +
     '</tr></thead><tbody>' +
     active.map(p => {
@@ -1153,7 +1123,9 @@ function buildResumen() {
         '<td>' + escHtml(p.nombre) + elim + '</td>' +
         '<td class="td-pts-s">' + p.pts + '</td>' +
         '<td style="color:var(--blue)">' + (p.t1||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t1a||0) + '</span></td>' +
+        '<td style="color:' + pctColor(p.t1||0, p.t1a||0) + ';font-style:italic">' + pct(p.t1||0, p.t1a||0) + '</td>' +
         '<td style="color:var(--blue)">' + (p.t2||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t2a||0) + '</span></td>' +
+        '<td style="color:' + pctColor(p.t2||0, p.t2a||0) + ';font-style:italic">' + pct(p.t2||0, p.t2a||0) + '</td>' +
         '<td>' + p.reb + '</td><td>' + p.asist + '</td><td>' + p.blq + '</td><td>' + p.rob + '</td>' +
         '<td class="' + fCls + '">' + p.faltas + '</td>' +
         '</tr>';
