@@ -307,7 +307,7 @@ table {
   border-collapse: collapse;
   font-size: 13px;
   table-layout: fixed;
-  min-width: 740px;
+  min-width: 860px;
 }
 thead tr { background: var(--bg3); }
 th {
@@ -423,32 +423,38 @@ tr.row-foul4 td { background: rgba(245,165,36,.08) !important; }
 .falta-btn.f-warn   { background: var(--amber); border-color: var(--amber); color: #000; }
 
 /* stat counter */
-.counter { display: flex; align-items: center; gap: 3px; justify-content: center; }
-.cnt-btn {
-  width: 22px; height: 22px;
-  border-radius: var(--radius);
-  border: 1px solid var(--line2);
-  background: var(--bg3);
-  cursor: pointer;
-  color: var(--txt3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
-  user-select: none;
-  transition: all .1s;
-  line-height: 1;
-}
-.cnt-btn:hover { border-color: var(--red); color: var(--red); background: rgba(200,16,46,.1); }
-.cnt-btn:active { transform: scale(.88); }
+.counter { display: flex; justify-content: center; }
 .cnt-val {
   font-family: var(--cond);
   font-size: 16px;
   font-weight: 700;
-  min-width: 24px;
+  min-width: 36px;
+  padding: 3px 6px;
   text-align: center;
   color: var(--txt);
+  cursor: pointer;
+  border-radius: var(--radius);
+  user-select: none;
+  transition: background .1s, color .1s, transform .08s;
 }
+.cnt-val:hover { background: rgba(255,255,255,.07); }
+.cnt-val:active { transform: scale(.9); }
 .cnt-val.pts-accent { color: var(--gold); font-size: 18px; font-weight: 800; }
+.cnt-val.cnt-shot { color: var(--navy-light); }
+.cnt-val.cnt-shot:hover { background: rgba(61,142,248,.15); color: var(--blue); }
+th.th-shot { color: var(--blue) !important; }
+.cnt-val.flash-inc { animation: flashInc .2s ease; }
+.cnt-val.flash-dec { animation: flashDec .2s ease; }
+@keyframes flashInc {
+  0%   { background: rgba(200,16,46,.0);  transform: scale(1);    }
+  40%  { background: rgba(200,16,46,.25); transform: scale(1.25); }
+  100% { background: rgba(200,16,46,.0);  transform: scale(1);    }
+}
+@keyframes flashDec {
+  0%   { background: rgba(255,255,255,.0);  transform: scale(1);   }
+  40%  { background: rgba(255,255,255,.12); transform: scale(.8);  }
+  100% { background: rgba(255,255,255,.0);  transform: scale(1);   }
+}
 
 /* del */
 .del-btn {
@@ -744,6 +750,8 @@ tr.row-foul4 td { background: rgba(245,165,36,.08) !important; }
               <th class="th-stat">BLK</th>
               <th class="th-stat">STL</th>
               <th class="th-stat">TO</th>
+              <th class="th-stat th-shot">1PT</th>
+              <th class="th-stat th-shot">2PT</th>
               <th class="th-pts">PTS</th>
               <th class="th-del"></th>
             </tr>
@@ -805,7 +813,7 @@ let meta = { equipo:'', rival:'', fecha:'', lugar:'', resLocal:'', resRival:'' }
 let nextId = 1;
 
 function mkPlayer(nombre, num) {
-  return { id: nextId++, num: num || nextId, nombre, faltas:0, reb:0, asist:0, blq:0, rob:0, tp:0, pts:0 };
+  return { id: nextId++, num: num || nextId, nombre, faltas:0, reb:0, asist:0, blq:0, rob:0, tp:0, t1:0, t2:0, pts:0 };
 }
 function defaultStats() {
   nextId = 1;
@@ -988,12 +996,73 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function shotClick(id, key, ptsVal) {
+  const k = id + '_' + key;
+  if (_clickTimers[k]) {
+    clearTimeout(_clickTimers[k]);
+    delete _clickTimers[k];
+    const p = stats.find(x => x.id === id);
+    if (!p || p[key] <= 0) return;
+    p[key]--;
+    p.pts = Math.max(0, p.pts - ptsVal);
+    saveToStorage();
+    updateStatCell(id, key, p[key]);
+    updateStatCell(id, 'pts', p.pts);
+    flashStat(id, key, 'dec');
+    flashStat(id, 'pts', 'dec');
+  } else {
+    _clickTimers[k] = setTimeout(() => {
+      delete _clickTimers[k];
+      const p = stats.find(x => x.id === id);
+      if (!p) return;
+      p[key]++;
+      p.pts += ptsVal;
+      saveToStorage();
+      updateStatCell(id, key, p[key]);
+      updateStatCell(id, 'pts', p.pts);
+      flashStat(id, key, 'inc');
+      flashStat(id, 'pts', 'inc');
+    }, 230);
+  }
+}
+
+const _clickTimers = {};
+function statClick(id, key) {
+  const k = id + '_' + key;
+  if (_clickTimers[k]) {
+    clearTimeout(_clickTimers[k]);
+    delete _clickTimers[k];
+    dec(id, key);
+    flashStat(id, key, 'dec');
+  } else {
+    _clickTimers[k] = setTimeout(() => {
+      delete _clickTimers[k];
+      inc(id, key);
+      flashStat(id, key, 'inc');
+    }, 230);
+  }
+}
+function flashStat(id, key, dir) {
+  const row = document.querySelector('[data-id="' + id + '"]');
+  if (!row) return;
+  const span = row.querySelector('[data-stat="' + key + '"]');
+  if (!span) return;
+  span.classList.remove('flash-inc', 'flash-dec');
+  void span.offsetWidth;
+  span.classList.add(dir === 'inc' ? 'flash-inc' : 'flash-dec');
+}
+
 function mkCounter(id, key, val, accent) {
   const cls = accent ? 'cnt-val pts-accent' : 'cnt-val';
   return '<td><div class="counter">' +
-    '<button class="cnt-btn" onclick="dec(' + id + ',\'' + key + '\')" aria-label="Restar">−</button>' +
-    '<span class="' + cls + '" data-stat="' + key + '">' + val + '</span>' +
-    '<button class="cnt-btn" onclick="inc(' + id + ',\'' + key + '\')" aria-label="Sumar">+</button>' +
+    '<span class="' + cls + '" data-stat="' + key + '" onclick="statClick(' + id + ',\'' + key + '\')" title="Click: +1 · Doble click: -1">' + val + '</span>' +
+    '</div></td>';
+}
+
+function mkShotCounter(id, key, val, ptsVal) {
+  const label = ptsVal === 1 ? '+1pt' : '+2pts';
+  return '<td><div class="counter">' +
+    '<span class="cnt-val cnt-shot" data-stat="' + key + '" onclick="shotClick(' + id + ',\'' + key + '\',' + ptsVal + ')" title="Click: ' + label + ' · Doble click: -' + ptsVal + 'pt">' + val + '</span>' +
     '</div></td>';
 }
 
@@ -1019,6 +1088,8 @@ function createRow(p) {
     mkCounter(p.id, 'blq',   p.blq)   +
     mkCounter(p.id, 'rob',   p.rob)   +
     mkCounter(p.id, 'tp',    p.tp)    +
+    mkShotCounter(p.id, 't1', p.t1 || 0, 1) +
+    mkShotCounter(p.id, 't2', p.t2 || 0, 2) +
     mkCounter(p.id, 'pts',   p.pts, true) +
     '<td><button class="del-btn" onclick="deletePlayer(' + p.id + ')" aria-label="Eliminar"><i class="ti ti-x"></i></button></td>';
   return tr;
@@ -1030,12 +1101,12 @@ function buildTable() {
   stats.forEach(p => tbody.appendChild(createRow(p)));
   const addRow = document.createElement('tr');
   addRow.className = 'row-add';
-  addRow.innerHTML = '<td colspan="10"><button class="add-btn" onclick="addPlayer()"><i class="ti ti-plus"></i>Add Player</button></td>';
+  addRow.innerHTML = '<td colspan="12"><button class="add-btn" onclick="addPlayer()"><i class="ti ti-plus"></i>Add Player</button></td>';
   tbody.appendChild(addRow);
 }
 
 function totals() {
-  return ['pts','reb','asist','blq','rob','tp','faltas'].reduce((acc, k) => {
+  return ['pts','reb','asist','blq','rob','tp','t1','t2','faltas'].reduce((acc, k) => {
     acc[k] = stats.reduce((s, p) => s + (p[k] || 0), 0);
     return acc;
   }, {});
@@ -1062,10 +1133,13 @@ function buildResumen() {
     wrap.innerHTML = '<p class="empty-msg">No data recorded yet</p>';
     return;
   }
-  const headers = ['Player','PTS','REB','AST','BLK','STL','FL'];
+  const headers = ['Player','PTS','1PT','2PT','REB','AST','BLK','STL','FL'];
   wrap.innerHTML =
     '<table class="summary-table"><thead><tr>' +
-    headers.map(h => '<th>' + h + '</th>').join('') +
+    headers.map((h,i) => {
+      const shotStyle = (h==='1PT'||h==='2PT') ? ' style="color:var(--blue)"' : '';
+      return '<th' + shotStyle + '>' + h + '</th>';
+    }).join('') +
     '</tr></thead><tbody>' +
     active.map(p => {
       const fCls = p.faltas >= 5 ? 'td-red' : p.faltas === 4 ? 'td-amber' : '';
@@ -1073,6 +1147,8 @@ function buildResumen() {
       return '<tr>' +
         '<td>' + escHtml(p.nombre) + elim + '</td>' +
         '<td class="td-pts-s">' + p.pts + '</td>' +
+        '<td style="color:var(--blue)">' + (p.t1||0) + '</td>' +
+        '<td style="color:var(--blue)">' + (p.t2||0) + '</td>' +
         '<td>' + p.reb + '</td><td>' + p.asist + '</td><td>' + p.blq + '</td><td>' + p.rob + '</td>' +
         '<td class="' + fCls + '">' + p.faltas + '</td>' +
         '</tr>';
