@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basketball Scoreboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red:    #ff2200;
+    --yellow: #ffaa00;
+    --bg:     #080808;
+    --border: #1e1e1e;
+    --glow-r: 0 0 12px #ff2200, 0 0 40px #ff220055;
+    --glow-y: 0 0 12px #ffaa00, 0 0 40px #ffaa0055;
+  }
+
+  body {
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  .board {
+    width: min(98vw, 700px);
+    background: #0b0b0b;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 12px 12px;
+    box-shadow: 0 0 80px #000000aa;
+    user-select: none;
+  }
+
+  .clock-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 0 12px;
+    cursor: pointer;
+  }
+
+  .clock-num {
+    font-size: clamp(80px, 18vw, 130px);
+    font-weight: 900;
+    color: var(--red);
+    text-shadow: var(--glow-r);
+    line-height: 1;
+    min-width: 1ch;
+    text-align: center;
+  }
+
+  .clock-sep {
+    font-size: clamp(70px, 15vw, 110px);
+    font-weight: 900;
+    color: var(--red);
+    text-shadow: var(--glow-r);
+    line-height: 1;
+    padding: 0 4px;
+  }
+  .running .clock-sep { animation: blink 1s step-end infinite; }
+  .stopped .clock-sep { animation: none; opacity: 1; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .clock-ctrl {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .btn-main {
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 8px;
+    color: #999;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    padding: 10px 28px;
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .btn-main:hover  { border-color: var(--yellow); color: var(--yellow); background: #181200; }
+  .btn-main.go     { border-color: #00cc44; color: #00cc44; }
+  .btn-main.go:hover { background: #001a08; }
+  .btn-main.danger { border-color: #cc2200; color: #cc2200; }
+  .btn-main.danger:hover { background: #1a0000; }
+
+  .scores {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .team-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #0e0e0e;
+  }
+
+  .team-label {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: #555;
+  }
+
+  .score-num {
+    font-size: clamp(72px, 16vw, 120px);
+    font-weight: 900;
+    color: var(--yellow);
+    text-shadow: var(--glow-y);
+    line-height: 1;
+  }
+
+  .pt-btns {
+    display: flex;
+    gap: 8px;
+  }
+
+  .pt-btn {
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 6px;
+    color: #888;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    width: 64px;
+    height: 48px;
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: 1px;
+  }
+  .pt-btn:hover  { border-color: var(--yellow); color: var(--yellow); background: #181200; }
+  .pt-btn:active { transform: scale(.92); }
+
+  .pt-btn.minus {
+    font-size: 20px;
+    color: #444;
+    border-color: #222;
+  }
+  .pt-btn.minus:hover { border-color: #cc2200; color: #cc2200; background: #1a0000; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 4px 0 10px; }
+</style>
+</head>
+<body>
+<div class="board">
+
+  <div class="clock-wrap stopped" id="clockWrap" onclick="editClock()">
+    <span class="clock-num" id="cM1">1</span>
+    <span class="clock-num" id="cM2">0</span>
+    <span class="clock-sep">:</span>
+    <span class="clock-num" id="cS1">0</span>
+    <span class="clock-num" id="cS2">0</span>
+  </div>
+
+  <div class="clock-ctrl">
+    <button class="btn-main go" id="startStopBtn" onclick="toggleClock()">▶ START</button>
+    <button class="btn-main danger" onclick="resetAll()">↺ RESET</button>
+  </div>
+
+  <hr>
+
+  <div class="scores">
+    <div class="team-block">
+      <span class="team-label">LOCAL</span>
+      <div class="score-num" id="scoreHome">00</div>
+      <div class="pt-btns">
+        <button class="pt-btn" onclick="addScore('home',1)">+1</button>
+        <button class="pt-btn" onclick="addScore('home',2)">+2</button>
+        <button class="pt-btn minus" onclick="addScore('home',-1)">−</button>
+      </div>
+    </div>
+    <div class="team-block">
+      <span class="team-label">VISITANTE</span>
+      <div class="score-num" id="scoreAway">00</div>
+      <div class="pt-btns">
+        <button class="pt-btn" onclick="addScore('away',1)">+1</button>
+        <button class="pt-btn" onclick="addScore('away',2)">+2</button>
+        <button class="pt-btn minus" onclick="addScore('away',-1)">−</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const s = { home: 0, away: 0, secs: 600, running: false, iv: null };
+  const pad = n => String(n).padStart(2,'0');
+  const fmt = n => String(Math.max(0,n)).padStart(2,'0');
+
+  function renderClock() {
+    const m = pad(Math.floor(s.secs / 60));
+    const sec = pad(s.secs % 60);
+    document.getElementById('cM1').textContent = m[0];
+    document.getElementById('cM2').textContent = m[1];
+    document.getElementById('cS1').textContent = sec[0];
+    document.getElementById('cS2').textContent = sec[1];
+  }
+
+  function renderScores() {
+    document.getElementById('scoreHome').textContent = fmt(s.home);
+    document.getElementById('scoreAway').textContent = fmt(s.away);
+  }
+
+  function toggleClock() {
+    s.running = !s.running;
+    const btn = document.getElementById('startStopBtn');
+    const wrap = document.getElementById('clockWrap');
+    if (s.running) {
+      btn.textContent = '⏸ STOP';
+      btn.className = 'btn-main';
+      wrap.className = 'clock-wrap running';
+      s.iv = setInterval(() => {
+        if (s.secs > 0) { s.secs--; renderClock(); }
+        else {
+          clearInterval(s.iv); s.running = false;
+          btn.textContent = '▶ START'; btn.className = 'btn-main go';
+          wrap.className = 'clock-wrap stopped';
+        }
+      }, 1000);
+    } else {
+      clearInterval(s.iv);
+      btn.textContent = '▶ START'; btn.className = 'btn-main go';
+      wrap.className = 'clock-wrap stopped';
+    }
+  }
+
+  function addScore(team, delta) {
+    s[team] = Math.max(0, s[team] + delta);
+    renderScores();
+    const el = document.getElementById(team === 'home' ? 'scoreHome' : 'scoreAway');
+    el.style.filter = 'brightness(2.2)';
+    setTimeout(() => el.style.filter = '', 160);
+  }
+
+  function editClock() {
+    if (s.running) return;
+    const v = prompt('Tiempo (MM:SS):', pad(Math.floor(s.secs/60)) + ':' + pad(s.secs%60));
+    if (!v) return;
+    const p = v.split(':');
+    if (p.length === 2) { s.secs = (parseInt(p[0])||0)*60 + (parseInt(p[1])||0); renderClock(); }
+  }
+
+  function resetAll() {
+    if (!confirm('¿Resetear?')) return;
+    clearInterval(s.iv);
+    Object.assign(s, { home:0, away:0, secs:600, running:false });
+    document.getElementById('startStopBtn').textContent = '▶ START';
+    document.getElementById('startStopBtn').className = 'btn-main go';
+    document.getElementById('clockWrap').className = 'clock-wrap stopped';
+    renderClock(); renderScores();
+  }
+
+  renderClock(); renderScores();
+</script>
+</body>
+</html>
