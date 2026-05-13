@@ -38,9 +38,24 @@
   --radius-lg: 10px;
 }
 
+body.light {
+  --bg:    #f0f2f7;
+  --bg2:   #ffffff;
+  --bg3:   #f5f7fc;
+  --bg4:   #eaecf4;
+  --line:  rgba(0,0,0,.08);
+  --line2: rgba(0,0,0,.15);
+  --txt:   #1a2340;
+  --txt2:  #5a6a8a;
+  --txt3:  #9aaac8;
+  --gold:  #d4920a;
+  --green: #0ea853;
+  --white: #636363;
+}
+
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #2a2f40; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 3px; }
 
 html { font-size: 14px; }
 body {
@@ -48,7 +63,28 @@ body {
   background: var(--bg);
   color: var(--txt);
   min-height: 100vh;
+  transition: background .2s, color .2s;
 }
+
+.theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  font-family: var(--cond);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  background: var(--bg3);
+  border: 1px solid var(--line2);
+  border-radius: var(--radius);
+  color: var(--txt2);
+  cursor: pointer;
+  transition: all .15s;
+}
+.theme-btn:hover { border-color: var(--txt2); color: var(--txt); }
+.theme-btn i { font-size: 14px; }
 
 /* ── Header ── */
 .site-header {
@@ -684,6 +720,10 @@ tr.row-foul4 td { background: rgba(245,165,36,.08) !important; }
         <i class="ti ti-device-floppy"></i>
         <span id="save-text">Sin guardar</span>
       </div>
+      <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">
+        <i class="ti ti-sun" id="theme-icon"></i>
+        <span id="theme-label">Claro</span>
+      </button>
     </div>
   </div>
 
@@ -703,7 +743,7 @@ tr.row-foul4 td { background: rgba(245,165,36,.08) !important; }
     </div>
     <div class="info-cell">
       <div class="info-cell-label">Lugar</div>
-      <input id="meta-lugar" placeholder="Cancha / sede" type="text" oninput="saveMeta()">
+      <input id="meta-lugar" placeholder="Cancha / sede" type="text" oninput="saveMeta()" >
     </div>
   </div>
 
@@ -795,6 +835,20 @@ let stats = [];
 let meta = {};
 let nextId = 1;
 
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-icon').className  = isLight ? 'ti ti-moon'  : 'ti ti-sun';
+  document.getElementById('theme-label').textContent = isLight ? 'Oscuro' : 'Claro';
+  localStorage.setItem('bball_theme', isLight ? 'light' : 'dark');
+}
+(function applyTheme() {
+  if (localStorage.getItem('bball_theme') === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('theme-icon').className   = 'ti ti-moon';
+    document.getElementById('theme-label').textContent = 'Oscuro';
+  }
+})();
+
 function mkPlayer(nombre, num) {
   return { id: nextId++, num: num || nextId, nombre,
            faltas:0, reb:0, asist:0, blq:0, rob:0, tp:0,
@@ -873,6 +927,8 @@ function resetAll() {
   stats = defaultStats(); meta = {};
   saveToStorage(); applyMetaToDOM(); buildTable();
   document.getElementById('save-text').textContent = 'Reiniciado';
+
+  document.getElementById('meta-lugar').value = 'Gallinero';
   document.getElementById('save-indicator').classList.remove('saved');
 }
 
@@ -1128,13 +1184,13 @@ function totals() {
 function buildResumen() {
   const t = totals();
   const kpis = [
-    {label:'Points',    val:t.pts,    cls:'k-red'},
+    {label:'Points',    val:t.pts,    cls:'k-green'},
     {label:'Rebounds',  val:t.reb,    cls:'k-navy'},
     {label:'Assists',   val:t.asist,  cls:'k-gold'},
-    {label:'Blocks',    val:t.blq,    cls:'k-amber'},
-    {label:'Steals',    val:t.rob,    cls:'k-green'},
+    {label:'Blocks',    val:t.blq,    cls:'k-green'},
+    {label:'Steals',    val:t.rob,    cls:'k-amber'},
     {label:'Turnovers', val:t.tp,     cls:'k-red'},
-    {label:'Fouls',     val:t.faltas, cls:'k-amber'},
+    {label:'Fouls',     val:t.faltas, cls:'k-red'},
   ];
   document.getElementById('kpi-row').innerHTML = kpis.map(k =>
     '<div class="kpi-card ' + k.cls + '"><div class="kpi-label">' + k.label + '</div><div class="kpi-value">' + k.val + '</div></div>'
@@ -1151,7 +1207,7 @@ function buildResumen() {
     return r > 0.9 ? 'var(--green)' : r >= 0.5 ? 'var(--blue)' : r >= 0.33 ? 'var(--amber)' : 'var(--red)';
   };
 
-  const headers = ['Player','PTS','1PT','1PT%','2PT','2PT%','REB','AST','BLK','STL','FL'];
+  const headers = ['Player','PTS','1PT','1PT%','2PT','2PT%','REB','AST','BLK','STL','TO','FL'];
   wrap.innerHTML =
     '<table class="summary-table"><thead><tr>' +
     headers.map(h => {
@@ -1169,11 +1225,12 @@ function buildResumen() {
       return '<tr>' +
         '<td>' + escHtml(p.nombre) + elim + '</td>' +
         '<td class="td-pts-s">' + p.pts + '</td>' +
-        '<td style="color:var(--blue)"' + t1warn + '>' + (p.t1||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t1a||0) + '</span></td>' +
+        '<td style="color:var(--blue)"' + t1warn + '>' + (p.t1||0) + '<span style="color:var(--txt3);font-size: 11px">/' + (p.t1a||0) + '</span></td>' +
         '<td style="color:' + pctColor(p.t1||0, p.t1a||0) + ';font-style:italic">' + pct(p.t1||0, p.t1a||0) + '</td>' +
-        '<td style="color:var(--blue)"' + t2warn + '>' + (p.t2||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t2a||0) + '</span></td>' +
+        '<td style="color:var(--blue)"' + t2warn + '>' + (p.t2||0) + '<span style="color:var(--txt3);font-size: 11px">/' + (p.t2a||0) + '</span></td>' +
         '<td style="color:' + pctColor(p.t2||0, p.t2a||0) + ';font-style:italic">' + pct(p.t2||0, p.t2a||0) + '</td>' +
         '<td>' + p.reb + '</td><td>' + p.asist + '</td><td>' + p.blq + '</td><td>' + p.rob + '</td>' +
+        '<td >' + p.tp + '</td>' +
         '<td class="' + fCls + '">' + p.faltas + '</td>' +
         '</tr>';
     }).join('') +
