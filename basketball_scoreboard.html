@@ -242,8 +242,10 @@
       btn.textContent = '⏸ PAUSE'; btn.className = 'btn-main';
       wrap.className  = 'clock-wrap running';
       s.iv = setInterval(() => {
-        if (s.secs > 0) { s.secs--; renderClock(); if (s.secs <= 10) beepTick(); }
+        if (s.secs > 1) { if (s.secs <= 10) beepTick(); s.secs--; renderClock();  }
         else {
+          s.secs--;
+          renderClock();
           clearInterval(s.iv); s.running = false;
           btn.textContent = '▶ START'; btn.className = 'btn-main go';
           wrap.className  = 'clock-wrap stopped';
