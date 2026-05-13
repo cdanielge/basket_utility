@@ -440,8 +440,11 @@ tr.row-foul4 td { background: rgba(245,165,36,.08) !important; }
 .cnt-val:hover { background: rgba(255,255,255,.07); }
 .cnt-val:active { transform: scale(.9); }
 .cnt-val.pts-accent { color: var(--gold); font-size: 18px; font-weight: 800; }
-.cnt-val.cnt-shot { color: var(--navy-light); }
-.cnt-val.cnt-shot:hover { background: rgba(61,142,248,.15); color: var(--blue); }
+.cnt-val.cnt-shot { color: var(--blue); }
+.cnt-val.cnt-shot:hover { background: rgba(61,142,248,.15); }
+.cnt-val.cnt-att { color: var(--txt3); font-size: 13px; font-weight: 600; min-width: 22px; }
+.cnt-val.cnt-att:hover { background: rgba(255,255,255,.06); color: var(--txt2); }
+.shot-sep { font-family: var(--cond); font-size: 13px; color: var(--txt3); padding: 0 1px; user-select: none; }
 th.th-shot { color: var(--blue) !important; }
 .cnt-val.flash-inc { animation: flashInc .2s ease; }
 .cnt-val.flash-dec { animation: flashDec .2s ease; }
@@ -813,7 +816,7 @@ let meta = { equipo:'', rival:'', fecha:'', lugar:'', resLocal:'', resRival:'' }
 let nextId = 1;
 
 function mkPlayer(nombre, num) {
-  return { id: nextId++, num: num || nextId, nombre, faltas:0, reb:0, asist:0, blq:0, rob:0, tp:0, t1:0, t2:0, pts:0 };
+  return { id: nextId++, num: num || nextId, nombre, faltas:0, reb:0, asist:0, blq:0, rob:0, tp:0, t1:0, t1a:0, t2:0, t2a:0, pts:0 };
 }
 function defaultStats() {
   nextId = 1;
@@ -1059,10 +1062,12 @@ function mkCounter(id, key, val, accent) {
     '</div></td>';
 }
 
-function mkShotCounter(id, key, val, ptsVal) {
+function mkShotCounter(id, keyMade, keyAtt, valMade, valAtt, ptsVal) {
   const label = ptsVal === 1 ? '+1pt' : '+2pts';
-  return '<td><div class="counter">' +
-    '<span class="cnt-val cnt-shot" data-stat="' + key + '" onclick="shotClick(' + id + ',\'' + key + '\',' + ptsVal + ')" title="Click: ' + label + ' · Doble click: -' + ptsVal + 'pt">' + val + '</span>' +
+  return '<td><div class="counter" style="gap:2px">' +
+    '<span class="cnt-val cnt-shot" data-stat="' + keyMade + '" onclick="shotClick(' + id + ',\'' + keyMade + '\',' + ptsVal + ')" title="Click: ' + label + ' · Doble click: -' + ptsVal + 'pt">' + valMade + '</span>' +
+    '<span class="shot-sep">/</span>' +
+    '<span class="cnt-val cnt-att" data-stat="' + keyAtt + '" onclick="statClick(' + id + ',\'' + keyAtt + '\')" title="Intentos · Click: +1 · Doble click: -1">' + valAtt + '</span>' +
     '</div></td>';
 }
 
@@ -1088,8 +1093,8 @@ function createRow(p) {
     mkCounter(p.id, 'blq',   p.blq)   +
     mkCounter(p.id, 'rob',   p.rob)   +
     mkCounter(p.id, 'tp',    p.tp)    +
-    mkShotCounter(p.id, 't1', p.t1 || 0, 1) +
-    mkShotCounter(p.id, 't2', p.t2 || 0, 2) +
+    mkShotCounter(p.id, 't1', 't1a', p.t1||0, p.t1a||0, 1) +
+    mkShotCounter(p.id, 't2', 't2a', p.t2||0, p.t2a||0, 2) +
     mkCounter(p.id, 'pts',   p.pts, true) +
     '<td><button class="del-btn" onclick="deletePlayer(' + p.id + ')" aria-label="Eliminar"><i class="ti ti-x"></i></button></td>';
   return tr;
@@ -1106,7 +1111,7 @@ function buildTable() {
 }
 
 function totals() {
-  return ['pts','reb','asist','blq','rob','tp','t1','t2','faltas'].reduce((acc, k) => {
+  return ['pts','reb','asist','blq','rob','tp','t1','t1a','t2','t2a','faltas'].reduce((acc, k) => {
     acc[k] = stats.reduce((s, p) => s + (p[k] || 0), 0);
     return acc;
   }, {});
@@ -1147,8 +1152,8 @@ function buildResumen() {
       return '<tr>' +
         '<td>' + escHtml(p.nombre) + elim + '</td>' +
         '<td class="td-pts-s">' + p.pts + '</td>' +
-        '<td style="color:var(--blue)">' + (p.t1||0) + '</td>' +
-        '<td style="color:var(--blue)">' + (p.t2||0) + '</td>' +
+        '<td style="color:var(--blue)">' + (p.t1||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t1a||0) + '</span></td>' +
+        '<td style="color:var(--blue)">' + (p.t2||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t2a||0) + '</span></td>' +
         '<td>' + p.reb + '</td><td>' + p.asist + '</td><td>' + p.blq + '</td><td>' + p.rob + '</td>' +
         '<td class="' + fCls + '">' + p.faltas + '</td>' +
         '</tr>';
