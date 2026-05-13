@@ -17,6 +17,7 @@
   --red-glow:  rgba(200,16,46,.25);
   --navy:      #1D428A;
   --navy-light:#253a6e;
+  --blue:      #3D8EF8;
   --bg:        #0d0f14;
   --bg2:       #13161f;
   --bg3:       #191d28;
@@ -94,8 +95,6 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1;
-  min-width: 0;
 }
 .score-label {
   font-family: var(--cond);
@@ -109,7 +108,6 @@ body {
 .score-box {
   display: flex;
   align-items: center;
-  gap: 0;
   background: var(--bg3);
   border: 1px solid var(--line2);
   border-radius: var(--radius-md);
@@ -119,28 +117,28 @@ body {
 .score-team {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
+  gap: 6px;
+  padding: 4px 10px;
 }
-.score-name {
+.score-name-input {
+  width: 70px;
+  background: transparent;
+  border: none;
+  color: var(--txt2);
   font-family: var(--cond);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--txt2);
-  white-space: nowrap;
-}
-.score-val {
-  font-family: var(--cond);
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--white);
-  min-width: 36px;
   text-align: center;
+  outline: none;
+  padding: 0;
 }
-.score-val input {
-  width: 52px;
+.score-name-input::placeholder { color: var(--txt3); }
+.score-name-input:focus { color: var(--gold); }
+.score-sep { width: 1px; height: 36px; background: var(--line2); flex-shrink: 0; }
+.score-val-input {
+  width: 44px;
   background: transparent;
   border: none;
   color: var(--white);
@@ -151,15 +149,9 @@ body {
   outline: none;
   padding: 0;
 }
-.score-val input:focus { color: var(--gold); }
-.score-sep {
-  width: 1px;
-  height: 36px;
-  background: var(--line2);
-  flex-shrink: 0;
-}
+.score-val-input:focus { color: var(--gold); }
 .score-dash {
-  padding: 0 8px;
+  padding: 0 6px;
   font-family: var(--cond);
   font-size: 18px;
   font-weight: 700;
@@ -242,7 +234,6 @@ body {
   overflow: hidden;
   margin-bottom: 24px;
 }
-@media (max-width: 640px) { .game-info { grid-template-columns: 1fr 1fr; } }
 .info-cell {
   background: var(--bg2);
   padding: 14px 18px;
@@ -332,6 +323,7 @@ th.th-foul { width: 130px; }
 th.th-stat { width: 72px; }
 th.th-pts  { width: 90px; color: var(--txt2); }
 th.th-del  { width: 36px; }
+th.th-shot { color: var(--blue) !important; }
 
 td {
   padding: 7px 8px;
@@ -346,7 +338,6 @@ td.td-name {
   font-weight: 500;
 }
 tr:last-child td { border-bottom: none; }
-
 tr:hover:not(.row-foul5):not(.row-foul4):not(.row-add) td {
   background: rgba(255,255,255,.03);
 }
@@ -422,7 +413,7 @@ tr.row-foul4 td { background: rgba(245,165,36,.08) !important; }
 .falta-btn.f-active { background: var(--red); border-color: var(--red); color: #fff; }
 .falta-btn.f-warn   { background: var(--amber); border-color: var(--amber); color: #000; }
 
-/* stat counter */
+/* stat counter — FIX #4: touch-action: manipulation evita zoom en doble tap móvil */
 .counter { display: flex; justify-content: center; }
 .cnt-val {
   font-family: var(--cond);
@@ -435,6 +426,7 @@ tr.row-foul4 td { background: rgba(245,165,36,.08) !important; }
   cursor: pointer;
   border-radius: var(--radius);
   user-select: none;
+  touch-action: manipulation;   /* FIX #4 */
   transition: background .1s, color .1s, transform .08s;
 }
 .cnt-val:hover { background: rgba(255,255,255,.07); }
@@ -442,12 +434,13 @@ tr.row-foul4 td { background: rgba(245,165,36,.08) !important; }
 .cnt-val.pts-accent { color: var(--gold); font-size: 18px; font-weight: 800; }
 .cnt-val.pts-readonly { cursor: default; }
 .cnt-val.pts-readonly:hover { background: transparent; }
+/* FIX #1/#3: ahora var(--blue) existe, estos estilos funcionan */
 .cnt-val.cnt-shot { color: var(--blue); }
 .cnt-val.cnt-shot:hover { background: rgba(61,142,248,.15); }
 .cnt-val.cnt-att { color: var(--txt3); font-size: 13px; font-weight: 600; min-width: 22px; }
 .cnt-val.cnt-att:hover { background: rgba(255,255,255,.06); color: var(--txt2); }
 .shot-sep { font-family: var(--cond); font-size: 13px; color: var(--txt3); padding: 0 1px; user-select: none; }
-th.th-shot { color: var(--blue) !important; }
+
 .cnt-val.flash-inc { animation: flashInc .2s ease; }
 .cnt-val.flash-dec { animation: flashDec .2s ease; }
 @keyframes flashInc {
@@ -456,9 +449,9 @@ th.th-shot { color: var(--blue) !important; }
   100% { background: rgba(200,16,46,.0);  transform: scale(1);    }
 }
 @keyframes flashDec {
-  0%   { background: rgba(255,255,255,.0);  transform: scale(1);   }
-  40%  { background: rgba(255,255,255,.12); transform: scale(.8);  }
-  100% { background: rgba(255,255,255,.0);  transform: scale(1);   }
+  0%   { background: rgba(255,255,255,.0);  transform: scale(1);  }
+  40%  { background: rgba(255,255,255,.12); transform: scale(.8); }
+  100% { background: rgba(255,255,255,.0);  transform: scale(1);  }
 }
 
 /* del */
@@ -619,7 +612,7 @@ th.th-shot { color: var(--blue) !important; }
 .td-red   { color: var(--red)   !important; font-weight: 800 !important; }
 .td-amber { color: var(--amber) !important; font-weight: 800 !important; }
 
-/* ── Toolbar (bottom) ── */
+/* ── Toolbar ── */
 .toolbar {
   display: flex;
   align-items: center;
@@ -646,7 +639,6 @@ th.th-shot { color: var(--blue) !important; }
 }
 .btn:hover { border-color: var(--white); color: var(--white); }
 .btn i { font-size: 15px; }
-.btn-danger { }
 .btn-danger:hover { border-color: var(--red); color: var(--red); background: rgba(200,16,46,.1); }
 
 /* ── Misc ── */
@@ -665,21 +657,28 @@ th.th-shot { color: var(--blue) !important; }
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.game-info   { animation: fadeUp .3s ease both; }
-.table-card  { animation: fadeUp .3s .08s ease both; }
-.kpi-row     { animation: fadeUp .3s .08s ease both; }
-.cat-block   { animation: fadeUp .3s .1s ease both; }
+.game-info  { animation: fadeUp .3s ease both; }
+.table-card { animation: fadeUp .3s .08s ease both; }
+.kpi-row    { animation: fadeUp .3s .08s ease both; }
+.cat-block  { animation: fadeUp .3s .1s ease both; }
+
+/* ── FIX #5: indicador visual cuando encestes > intentos ── */
+.shot-warn {
+  outline: 1px solid var(--amber);
+  border-radius: var(--radius);
+  color: var(--amber) !important;
+}
 </style>
 </head>
 <body>
 
-<!-- ── Site Header ── -->
 <header class="site-header">
   <div class="header-top">
     <div class="logo">
       <div class="logo-icon"><i class="ti ti-ball-basketball" style="color:#fff;font-size:20px"></i></div>
       <div class="logo-text">BBALL<span>STATS</span></div>
     </div>
+
     <div class="header-actions">
       <div class="save-pill" id="save-indicator">
         <i class="ti ti-device-floppy"></i>
@@ -688,7 +687,6 @@ th.th-shot { color: var(--blue) !important; }
     </div>
   </div>
 
-  <!-- Nav tabs -->
   <nav class="nav-bar">
     <button class="nav-tab active" onclick="showTab('registro')"><i class="ti ti-clipboard-list"></i>Box Score</button>
     <button class="nav-tab" onclick="showTab('resumen')"><i class="ti ti-chart-bar"></i>Team Stats</button>
@@ -696,10 +694,8 @@ th.th-shot { color: var(--blue) !important; }
   </nav>
 </header>
 
-<!-- ── Main ── -->
 <main class="main">
 
-  <!-- Game meta strip -->
   <div class="game-info">
     <div class="info-cell">
       <div class="info-cell-label">Fecha</div>
@@ -711,7 +707,6 @@ th.th-shot { color: var(--blue) !important; }
     </div>
   </div>
 
-  <!-- Tab: Box Score -->
   <div id="tab-registro">
     <div class="section-head">
       <span class="section-title">Box Score</span>
@@ -742,14 +737,12 @@ th.th-shot { color: var(--blue) !important; }
     </div>
   </div>
 
-  <!-- Tab: Team Stats -->
   <div id="tab-resumen" style="display:none">
     <div class="section-head">
       <span class="section-title">Team Stats</span>
       <div class="section-line"></div>
     </div>
     <div class="kpi-row" id="kpi-row"></div>
-
     <div class="section-head">
       <span class="section-title">Player Stats</span>
       <div class="section-line"></div>
@@ -759,7 +752,6 @@ th.th-shot { color: var(--blue) !important; }
     </div>
   </div>
 
-  <!-- Tab: Leaders -->
   <div id="tab-lideres" style="display:none">
     <div class="section-head">
       <span class="section-title">Statistical Leaders</span>
@@ -768,7 +760,6 @@ th.th-shot { color: var(--blue) !important; }
     <div id="lideres-wrap"></div>
   </div>
 
-  <!-- Bottom toolbar -->
   <div class="toolbar">
     <button class="btn" onclick="exportJSON()"><i class="ti ti-download"></i>Exportar JSON</button>
     <label class="btn" style="cursor:pointer">
@@ -781,19 +772,33 @@ th.th-shot { color: var(--blue) !important; }
 </main>
 
 <script>
-const STORAGE_KEY = 'basketball_stats_v2';
+const STORAGE_KEY = 'basketball_stats_v3';
 const DEFAULT_PLAYERS = [
-  "Alonso Moron","Andres","Angel Blanchard","Carlos Daniel","Carmen Nuñez",
-  "Daniel Villamizar","Diego","Felix","Frank Arellano","Johanny Perez",
-  "Jose Daniel Carrera","José Leonardo Rodriguez","Luis Roque","Miguel Atencio","Pedro Lopez"
+"Alonso ",
+"Angel Doncic",
+"Carmen",
+"cDaniel ",
+"Daniel",
+"Diego ",
+"Felix",
+"Frank ",
+"Johanny",
+"José Daniel 👑 ⚰️",
+"José Leonardo",
+"Juan N",
+"Luis",
+"Miguel N30 👨🏼‍🍳",
+"Romi"
 ];
 
 let stats = [];
-let meta = { equipo:'', rival:'', fecha:'', lugar:'', resLocal:'', resRival:'' };
+let meta = {};
 let nextId = 1;
 
 function mkPlayer(nombre, num) {
-  return { id: nextId++, num: num || nextId, nombre, faltas:0, reb:0, asist:0, blq:0, rob:0, tp:0, t1:0, t1a:0, t2:0, t2a:0, pts:0 };
+  return { id: nextId++, num: num || nextId, nombre,
+           faltas:0, reb:0, asist:0, blq:0, rob:0, tp:0,
+           t1:0, t1a:0, t2:0, t2a:0, pts:0 };
 }
 function defaultStats() {
   nextId = 1;
@@ -806,7 +811,7 @@ function loadFromStorage() {
     if (!raw) return false;
     const saved = JSON.parse(raw);
     stats = saved.stats || defaultStats();
-    meta = saved.meta || {};
+    meta  = saved.meta  || {};
     nextId = Math.max(...stats.map(p => p.id || 0), 0) + 1;
     return true;
   } catch(e) { return false; }
@@ -822,21 +827,21 @@ function saveToStorage() {
 }
 
 function applyMetaToDOM() {
-  document.getElementById('meta-fecha').value = meta.fecha || '';
-  document.getElementById('meta-lugar').value = meta.lugar || '';
+  document.getElementById('meta-fecha').value          = meta.fecha      || '';
+  document.getElementById('meta-lugar').value          = meta.lugar      || '';
 }
 
 function saveMeta() {
-  meta.fecha = document.getElementById('meta-fecha').value;
-  meta.lugar = document.getElementById('meta-lugar').value;
+  meta.fecha    = document.getElementById('meta-fecha').value;
+  meta.lugar    = document.getElementById('meta-lugar').value;
   saveToStorage();
 }
 
 function exportJSON() {
   const blob = new Blob([JSON.stringify({stats, meta, exportedAt: new Date().toISOString()}, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
   a.download = ('basketball_' + (meta.equipo||'equipo') + '_' + (meta.fecha||new Date().toISOString().slice(0,10)) + '.json').replace(/\s+/g,'_');
   a.click();
   URL.revokeObjectURL(url);
@@ -851,7 +856,8 @@ function importJSON(event) {
     try {
       const data = JSON.parse(e.target.result);
       if (data.stats && Array.isArray(data.stats)) {
-        stats = data.stats; meta = data.meta || {};
+        stats  = data.stats;
+        meta   = data.meta || {};
         nextId = Math.max(...stats.map(p => p.id || 0), 0) + 1;
         saveToStorage(); applyMetaToDOM(); buildTable();
         document.getElementById('save-text').textContent = 'Importado';
@@ -863,19 +869,20 @@ function importJSON(event) {
 }
 
 function resetAll() {
-  if (!confirm('¿Reiniciar todas las estadísticas? Esto no se puede deshacer.')) return;
+  if (!confirm('¿Reiniciar todas las estadísticas? No se puede deshacer.')) return;
   stats = defaultStats(); meta = {};
   saveToStorage(); applyMetaToDOM(); buildTable();
   document.getElementById('save-text').textContent = 'Reiniciado';
+  document.getElementById('save-indicator').classList.remove('saved');
 }
 
 function addPlayer() {
   const p = mkPlayer('Nuevo jugador', stats.length + 1);
   stats.push(p);
   saveToStorage();
-  const tbody = document.getElementById('players-table');
+  const tbody  = document.getElementById('players-table');
   const addRow = tbody.querySelector('.row-add');
-  const tr = createRow(p);
+  const tr     = createRow(p);
   tbody.insertBefore(tr, addRow);
   const ni = tr.querySelector('.name-input');
   if (ni) { ni.focus(); ni.select(); }
@@ -959,8 +966,20 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+// FIX #5: valida que encestes <= intentos y aplica warning visual
+function validateShots(id, keyMade, keyAtt) {
+  const p = stats.find(x => x.id === id);
+  if (!p) return;
+  const row = document.querySelector('[data-id="' + id + '"]');
+  if (!row) return;
+  const madeSpan = row.querySelector('[data-stat="' + keyMade + '"]');
+  if (!madeSpan) return;
+  const isInvalid = p[keyAtt] > 0 && p[keyMade] > p[keyAtt];
+  madeSpan.classList.toggle('shot-warn', isInvalid);
+}
+
 const _clickTimers = {};
-const DBL_DELAY = 230;
+const DBL_DELAY    = 260;
 
 function statClick(id, key, e) {
   const k = id + '_' + key;
@@ -978,35 +997,57 @@ function statClick(id, key, e) {
   }
 }
 
-function shotClick(id, key, ptsVal, e) {
-  const k = id + '_' + key;
+function shotClick(id, keyMade, keyAtt, ptsVal, e) {
+  const k = id + '_' + keyMade;
   clearTimeout(_clickTimers[k]);
   if (e.detail === 1) {
     _clickTimers[k] = setTimeout(() => {
       delete _clickTimers[k];
       const p = stats.find(x => x.id === id);
       if (!p) return;
-      p[key]++;
+      p[keyMade]++;
       p.pts += ptsVal;
       saveToStorage();
-      updateStatCell(id, key, p[key]);
+      updateStatCell(id, keyMade, p[keyMade]);
       updateStatCell(id, 'pts', p.pts);
-      flashStat(id, key, 'inc');
+      flashStat(id, keyMade, 'inc');
       flashStat(id, 'pts', 'inc');
+      validateShots(id, keyMade, keyAtt); // FIX #5
     }, DBL_DELAY);
   } else {
     delete _clickTimers[k];
     const p = stats.find(x => x.id === id);
-    if (!p || p[key] <= 0) return;
-    p[key]--;
+    if (!p || p[keyMade] <= 0) return;
+    p[keyMade]--;
     p.pts = Math.max(0, p.pts - ptsVal);
     saveToStorage();
-    updateStatCell(id, key, p[key]);
+    updateStatCell(id, keyMade, p[keyMade]);
     updateStatCell(id, 'pts', p.pts);
-    flashStat(id, key, 'dec');
+    flashStat(id, keyMade, 'dec');
     flashStat(id, 'pts', 'dec');
+    validateShots(id, keyMade, keyAtt); // FIX #5
   }
 }
+
+// FIX #5: también valida al modificar intentos
+function attClick(id, keyMade, keyAtt, e) {
+  const k = id + '_' + keyAtt;
+  clearTimeout(_clickTimers[k]);
+  if (e.detail === 1) {
+    _clickTimers[k] = setTimeout(() => {
+      delete _clickTimers[k];
+      inc(id, keyAtt);
+      flashStat(id, keyAtt, 'inc');
+      validateShots(id, keyMade, keyAtt);
+    }, DBL_DELAY);
+  } else {
+    delete _clickTimers[k];
+    dec(id, keyAtt);
+    flashStat(id, keyAtt, 'dec');
+    validateShots(id, keyMade, keyAtt);
+  }
+}
+
 function flashStat(id, key, dir) {
   const row = document.querySelector('[data-id="' + id + '"]');
   if (!row) return;
@@ -1027,9 +1068,9 @@ function mkCounter(id, key, val, accent) {
 function mkShotCounter(id, keyMade, keyAtt, valMade, valAtt, ptsVal) {
   const label = ptsVal === 1 ? '+1pt' : '+2pts';
   return '<td><div class="counter" style="gap:2px">' +
-    '<span class="cnt-val cnt-shot" data-stat="' + keyMade + '" onclick="shotClick(' + id + ',\'' + keyMade + '\',' + ptsVal + ',event)" title="Click: ' + label + ' · Doble click: -' + ptsVal + 'pt">' + valMade + '</span>' +
+    '<span class="cnt-val cnt-shot" data-stat="' + keyMade + '" onclick="shotClick(' + id + ',\'' + keyMade + '\',\'' + keyAtt + '\',' + ptsVal + ',event)" title="Click: ' + label + ' · Doble click: -' + ptsVal + 'pt">' + valMade + '</span>' +
     '<span class="shot-sep">/</span>' +
-    '<span class="cnt-val cnt-att" data-stat="' + keyAtt + '" onclick="statClick(' + id + ',\'' + keyAtt + '\',event)" title="Intentos · Click: +1 · Doble click: -1">' + valAtt + '</span>' +
+    '<span class="cnt-val cnt-att" data-stat="' + keyAtt + '" onclick="attClick(' + id + ',\'' + keyMade + '\',\'' + keyAtt + '\',event)" title="Intentos · Click: +1 · Doble click: -1">' + valAtt + '</span>' +
     '</div></td>';
 }
 
@@ -1066,6 +1107,11 @@ function buildTable() {
   const tbody = document.getElementById('players-table');
   tbody.innerHTML = '';
   stats.forEach(p => tbody.appendChild(createRow(p)));
+  // Re-validar warnings al cargar datos existentes
+  stats.forEach(p => {
+    validateShots(p.id, 't1', 't1a');
+    validateShots(p.id, 't2', 't2a');
+  });
   const addRow = document.createElement('tr');
   addRow.className = 'row-add';
   addRow.innerHTML = '<td colspan="12"><button class="add-btn" onclick="addPlayer()"><i class="ti ti-plus"></i>Add Player</button></td>';
@@ -1082,29 +1128,27 @@ function totals() {
 function buildResumen() {
   const t = totals();
   const kpis = [
-    {label:'Points',  val:t.pts,    cls:'k-red'},
-    {label:'Rebounds',val:t.reb,    cls:'k-navy'},
-    {label:'Assists', val:t.asist,  cls:'k-gold'},
-    {label:'Blocks',  val:t.blq,    cls:'k-amber'},
-    {label:'Steals',  val:t.rob,    cls:'k-green'},
-    {label:'Turnovers',val:t.tp,    cls:'k-red'},
-    {label:'Fouls',   val:t.faltas, cls:'k-amber'},
+    {label:'Points',    val:t.pts,    cls:'k-red'},
+    {label:'Rebounds',  val:t.reb,    cls:'k-navy'},
+    {label:'Assists',   val:t.asist,  cls:'k-gold'},
+    {label:'Blocks',    val:t.blq,    cls:'k-amber'},
+    {label:'Steals',    val:t.rob,    cls:'k-green'},
+    {label:'Turnovers', val:t.tp,     cls:'k-red'},
+    {label:'Fouls',     val:t.faltas, cls:'k-amber'},
   ];
   document.getElementById('kpi-row').innerHTML = kpis.map(k =>
     '<div class="kpi-card ' + k.cls + '"><div class="kpi-label">' + k.label + '</div><div class="kpi-value">' + k.val + '</div></div>'
   ).join('');
 
   const active = stats.filter(p => p.pts || p.reb || p.asist || p.blq || p.rob || p.faltas);
-  const wrap = document.getElementById('per-player-wrap');
-  if (!active.length) {
-    wrap.innerHTML = '<p class="empty-msg">No data recorded yet</p>';
-    return;
-  }
+  const wrap   = document.getElementById('per-player-wrap');
+  if (!active.length) { wrap.innerHTML = '<p class="empty-msg">No data recorded yet</p>'; return; }
+
   const pct = (m, a) => a > 0 ? Math.round((m / a) * 100) + '%' : '—';
   const pctColor = (m, a) => {
     if (!a) return 'var(--txt3)';
     const r = m / a;
-    return r >= 0.5 ? 'var(--green)' : r >= 0.33 ? 'var(--amber)' : 'var(--red)';
+    return r > 0.9 ? 'var(--green)' : r >= 0.5 ? 'var(--blue)' : r >= 0.33 ? 'var(--amber)' : 'var(--red)';
   };
 
   const headers = ['Player','PTS','1PT','1PT%','2PT','2PT%','REB','AST','BLK','STL','FL'];
@@ -1119,12 +1163,15 @@ function buildResumen() {
     active.map(p => {
       const fCls = p.faltas >= 5 ? 'td-red' : p.faltas === 4 ? 'td-amber' : '';
       const elim = p.faltas >= 5 ? '<span class="elim-tag">OUT</span>' : '';
+      // FIX #5: marcar en resumen si hay inconsistencia encestes > intentos
+      const t1warn = (p.t1a > 0 && p.t1 > p.t1a) ? ' style="color:var(--amber)"' : '';
+      const t2warn = (p.t2a > 0 && p.t2 > p.t2a) ? ' style="color:var(--amber)"' : '';
       return '<tr>' +
         '<td>' + escHtml(p.nombre) + elim + '</td>' +
         '<td class="td-pts-s">' + p.pts + '</td>' +
-        '<td style="color:var(--blue)">' + (p.t1||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t1a||0) + '</span></td>' +
+        '<td style="color:var(--blue)"' + t1warn + '>' + (p.t1||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t1a||0) + '</span></td>' +
         '<td style="color:' + pctColor(p.t1||0, p.t1a||0) + ';font-style:italic">' + pct(p.t1||0, p.t1a||0) + '</td>' +
-        '<td style="color:var(--blue)">' + (p.t2||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t2a||0) + '</span></td>' +
+        '<td style="color:var(--blue)"' + t2warn + '>' + (p.t2||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t2a||0) + '</span></td>' +
         '<td style="color:' + pctColor(p.t2||0, p.t2a||0) + ';font-style:italic">' + pct(p.t2||0, p.t2a||0) + '</td>' +
         '<td>' + p.reb + '</td><td>' + p.asist + '</td><td>' + p.blq + '</td><td>' + p.rob + '</td>' +
         '<td class="' + fCls + '">' + p.faltas + '</td>' +
@@ -1148,7 +1195,7 @@ function buildLideres() {
     const max = sorted[0][cat.key];
     html += '<div class="cat-block"><div class="cat-head">' + cat.label + '</div>' +
       sorted.map((p, i) => {
-        const pct = max > 0 ? Math.round((p[cat.key] / max) * 100) : 0;
+        const pct  = max > 0 ? Math.round((p[cat.key] / max) * 100) : 0;
         const isTop = i === 0;
         return '<div class="lider-row">' +
           '<span class="lider-rank' + (isTop ? ' top' : '') + '">' + (i+1) + '</span>' +
