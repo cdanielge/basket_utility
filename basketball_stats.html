@@ -3,139 +3,706 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estadísticas de Basketball</title>
+<title>Basketball Stats — e-digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
-  --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #eeece8;
-  --text: #1a1a18; --text-secondary: #6b6b67;
-  --border: rgba(0,0,0,0.12); --border-md: rgba(0,0,0,0.22);
-  --purple: #7F77DD; --purple-light: #EEEDFE;
-  --red: #E24B4A; --red-light: #FCEBEB; --red-dark: #A32D2D;
-  --green: #1D9E75; --amber: #BA7517; --amber-light: #FAEEDA;
-  --radius-md: 8px; --radius-lg: 12px;
+  --bg: #07090f;
+  --panel: #0e1220;
+  --panel2: #141928;
+  --panel3: #1a2035;
+  --line: #1c2640;
+  --line2: #243050;
+  --txt: #dde3f0;
+  --txt2: #6b7a99;
+  --txt3: #3a4a6b;
+  --green: #00e5a0;
+  --green-dim: rgba(0,229,160,.12);
+  --green-glow: rgba(0,229,160,.25);
+  --blue: #3d8ef8;
+  --red: #f05252;
+  --red-dim: rgba(240,82,82,.12);
+  --orange: #f97316;
+  --orange-dim: rgba(249,115,22,.12);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251,191,36,.1);
+  --purple: #a78bfa;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1c1c1a; --bg-secondary: #262624; --bg-tertiary: #2e2e2c;
-    --text: #f0ede8; --text-secondary: #9a9a94;
-    --border: rgba(255,255,255,0.1); --border-md: rgba(255,255,255,0.2);
-    --purple-light: #26215C; --red-light: #501313; --amber-light: #412402;
-  }
+
+body.light {
+  --bg: #f0f2f7;
+  --panel: #ffffff;
+  --panel2: #f5f7fc;
+  --panel3: #eef0f8;
+  --line: #dde2ef;
+  --line2: #c8d0e4;
+  --txt: #1a2340;
+  --txt2: #5a6a8a;
+  --txt3: #9aaac8;
+  --green: #00a372;
+  --green-dim: rgba(0,163,114,.1);
+  --green-glow: rgba(0,163,114,.2);
+  --red: #dc2626;
+  --red-dim: rgba(220,38,38,.08);
+  --orange: #ea580c;
+  --orange-dim: rgba(234,88,12,.08);
+  --amber: #d97706;
+  --amber-dim: rgba(217,119,6,.08);
 }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-tertiary); color: var(--text); min-height: 100vh; padding: 1.5rem 1rem; }
-.container { max-width: 960px; margin: 0 auto; }
-.card { background: var(--bg); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
-h1 { font-size: 20px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
-.top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 1.25rem; }
-.result-box { display: flex; align-items: center; gap: 8px; }
-.result-box span { font-size: 13px; color: var(--text-secondary); }
-.result-input { width: 72px; padding: 5px 8px; text-align: center; font-size: 15px; font-weight: 500; border: 0.5px solid var(--border); border-radius: var(--radius-md); background: var(--bg); color: var(--text); }
-.result-input:focus { outline: none; border-color: var(--purple); }
-.meta-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.25rem; }
-@media (max-width: 600px) { .meta-row { grid-template-columns: 1fr 1fr; } }
-.meta-row input { font-size: 13px; padding: 6px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-md); background: var(--bg); color: var(--text); width: 100%; }
-.meta-row input:focus { outline: none; border-color: var(--purple); }
-.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 1.25rem; }
-.btn { padding: 6px 12px; font-size: 13px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); cursor: pointer; color: var(--text); display: flex; align-items: center; gap: 5px; transition: background 0.1s; }
-.btn:hover { background: var(--bg-secondary); }
-.btn-danger { border-color: var(--red); color: var(--red); }
-.btn-danger:hover { background: var(--red-light); }
-.saved-badge { font-size: 12px; color: var(--green); display: flex; align-items: center; gap: 4px; margin-left: auto; }
-.tabs { display: flex; gap: 2px; border-bottom: 0.5px solid var(--border); margin-bottom: 1.25rem; }
-.tab { padding: 7px 16px; font-size: 13px; cursor: pointer; border: none; background: none; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -0.5px; display: flex; align-items: center; gap: 5px; }
-.tab.active { color: var(--text); border-bottom: 2px solid var(--purple); font-weight: 500; }
-.tab:hover:not(.active) { color: var(--text); background: var(--bg-secondary); border-radius: var(--radius-md) var(--radius-md) 0 0; }
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; min-width: 700px; }
-thead tr { background: var(--bg-secondary); }
-th { padding: 8px 6px; text-align: center; color: var(--text-secondary); font-weight: 500; border-bottom: 0.5px solid var(--border); font-size: 12px; }
-th.th-num { width: 36px; }
-th.th-name { width: 160px; text-align: left; }
-th.th-faltas { width: 120px; }
+
+html { font-size: 14px; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+  transition: background .25s, color .25s;
+}
+
+/* ─── Scrollbars ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 3px; }
+
+/* ─── Topbar ─── */
+.topbar {
+  height: 52px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  transition: background .25s, border-color .25s;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.brand-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  flex-shrink: 0;
+}
+.brand-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--txt);
+}
+.brand-name span { color: var(--green); }
+.topbar-divider { width: 1px; height: 22px; background: var(--line); flex-shrink: 0; }
+.topbar-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--txt2);
+  letter-spacing: .5px;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar-meta span { color: var(--green); margin-right: 4px; }
+.topbar-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.save-indicator {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--txt3);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: .3px;
+  white-space: nowrap;
+}
+.save-indicator.saved { color: var(--green); }
+.save-indicator i { font-size: 12px; }
+.theme-btn {
+  width: 30px; height: 30px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel2);
+  color: var(--txt2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  transition: all .15s;
+}
+.theme-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* ─── Main Layout ─── */
+.main { padding: 24px 28px 48px; max-width: 1100px; margin: 0 auto; }
+
+/* ─── Meta Card ─── */
+.meta-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  transition: background .25s, border-color .25s;
+}
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+@media (max-width: 700px) { .meta-grid { grid-template-columns: 1fr 1fr; } }
+
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.field-input {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--txt);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 10px;
+  width: 100%;
+  transition: border-color .15s, background .25s;
+}
+.field-input:focus { outline: none; border-color: var(--green); }
+.field-input::placeholder { color: var(--txt3); }
+
+/* color-scheme for date input */
+.field-input[type="date"] { color-scheme: dark; }
+body.light .field-input[type="date"] { color-scheme: light; }
+
+.result-group { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+.result-inputs { display: flex; align-items: center; gap: 6px; }
+.result-input {
+  width: 64px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--txt);
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 700;
+  padding: 6px 8px;
+  text-align: center;
+  transition: border-color .15s;
+}
+.result-input:focus { outline: none; border-color: var(--green); }
+.result-dash { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--txt3); }
+
+/* ─── Toolbar ─── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .15s;
+  border: 1px solid var(--line2);
+  background: var(--panel);
+  color: var(--txt2);
+}
+.btn:hover { border-color: var(--green); color: var(--green); background: var(--panel); }
+.btn i { font-size: 14px; }
+
+.btn-danger { border-color: var(--line2); color: var(--txt2); }
+.btn-danger:hover { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+
+.btn-primary {
+  background: var(--green);
+  color: #07090f;
+  border-color: var(--green);
+  font-weight: 700;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--green-glow);
+  border-color: var(--green);
+  color: #07090f;
+  background: var(--green);
+}
+
+/* ─── Card ─── */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: background .25s, border-color .25s;
+}
+
+/* ─── Tabs ─── */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  padding: 0 20px;
+  gap: 0;
+}
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 18px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--txt2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color .15s, border-color .15s;
+  letter-spacing: .1px;
+}
+.tab i { font-size: 14px; }
+.tab.active { color: var(--txt); border-bottom-color: var(--green); }
+.tab:hover:not(.active) { color: var(--txt); }
+
+/* ─── Table ─── */
+.table-wrap { overflow-x: auto; padding: 0; }
+.table-wrap::-webkit-scrollbar { height: 4px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: fixed;
+  min-width: 720px;
+}
+
+thead tr { background: var(--panel); }
+th {
+  padding: 10px 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--txt3);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  z-index: 1;
+}
+th.th-num  { width: 44px; }
+th.th-name { width: 170px; text-align: left; padding-left: 16px; }
+th.th-foul { width: 130px; }
 th.th-stat { width: 72px; }
-th.th-pts { width: 80px; }
-th.th-del { width: 32px; }
-td { padding: 4px 6px; text-align: center; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
-td.td-name { text-align: left; }
+th.th-pts  { width: 88px; }
+th.th-del  { width: 36px; }
+
+td {
+  padding: 6px 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(28,38,64,.5);
+  vertical-align: middle;
+  transition: background .1s;
+}
+td.td-name { text-align: left; padding-left: 16px; }
+
+tr:hover:not(.row-foul5):not(.row-foul4):not(.row-add) td {
+  background: rgba(255,255,255,.018);
+}
+body.light tr:hover:not(.row-foul5):not(.row-foul4):not(.row-add) td {
+  background: rgba(0,0,0,.025);
+}
+
 tr:last-child td { border-bottom: none; }
-tr.row-foul5 td { background: var(--red-light) !important; }
-tr.row-foul5 td.td-name .player-name { color: var(--red-dark); font-weight: 500; }
-tr.row-foul4 td { background: var(--amber-light) !important; }
-tr:hover:not(.row-foul5):not(.row-foul4):not(.row-add) td { background: var(--bg-secondary); }
-.num-input { width: 32px; padding: 3px 2px; text-align: center; border: 0.5px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-size: 13px; }
-.num-input:focus { outline: none; border-color: var(--purple); }
-.name-input { width: 100%; padding: 3px 4px; border: 0.5px solid transparent; border-radius: 4px; background: transparent; color: var(--text); font-size: 13px; font-family: inherit; }
-.name-input:hover { border-color: var(--border); background: var(--bg-secondary); }
-.name-input:focus { outline: none; border-color: var(--purple); background: var(--bg); }
+
+tr.row-foul5 td { background: var(--red-dim) !important; }
+tr.row-foul5 td.td-name .player-name-text { color: var(--red); }
+tr.row-foul4 td { background: var(--amber-dim) !important; }
+
+/* ─── Num Input ─── */
+.num-input {
+  width: 34px; height: 26px;
+  text-align: center;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--txt);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  transition: border-color .15s;
+}
+.num-input:focus { outline: none; border-color: var(--green); }
+
+/* ─── Name Input ─── */
+.name-input {
+  width: 100%;
+  padding: 3px 5px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--txt);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 400;
+}
+.name-input:hover { border-color: var(--line); background: var(--panel2); }
+.name-input:focus { outline: none; border-color: var(--green); background: var(--panel2); }
+
+/* ─── Falta Buttons ─── */
 .faltas-row { display: flex; gap: 3px; justify-content: center; }
-.falta-btn { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border-md); background: var(--bg); cursor: pointer; font-size: 10px; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; transition: background 0.1s; }
+.falta-btn {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line2);
+  background: var(--panel2);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--txt3);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .1s;
+}
 .falta-btn.f-active { background: var(--red); border-color: var(--red); color: #fff; }
-.falta-btn.f-warn { background: var(--amber); border-color: var(--amber); color: #fff; }
-.foul-badge { font-size: 10px; font-weight: 500; color: var(--red-dark); margin-left: 4px; }
-.pts-controls { display: flex; align-items: center; gap: 3px; justify-content: center; }
-.pts-btn { width: 22px; height: 22px; border-radius: 4px; border: 0.5px solid var(--border); background: var(--bg-secondary); cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text); display: flex; align-items: center; justify-content: center; line-height: 1; user-select: none; }
-.pts-btn:hover { background: var(--bg); border-color: var(--border-md); }
-.pts-btn:active { transform: scale(0.93); }
-.pts-val { font-size: 15px; font-weight: 500; min-width: 26px; text-align: center; }
-.pts-purple { color: var(--purple); }
-.del-btn { width: 22px; height: 22px; border: none; background: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 14px; }
-.del-btn:hover { background: var(--red-light); color: var(--red); }
-.row-add td { background: var(--bg-secondary); }
-.add-player-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); background: none; border: none; cursor: pointer; padding: 6px 8px; border-radius: var(--radius-md); }
-.add-player-btn:hover { color: var(--purple); background: var(--purple-light); }
-.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 1rem; }
-.stat-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 10px; text-align: center; }
-.stat-card .lbl { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
-.stat-card .val { font-size: 22px; font-weight: 500; }
-.section-label { font-size: 11px; color: var(--text-secondary); font-weight: 500; margin: 12px 0 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-.lider-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 0.5px solid var(--border); }
+.falta-btn.f-warn   { background: var(--amber); border-color: var(--amber); color: #07090f; }
+
+.elim-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: .5px;
+  margin-left: 5px;
+  text-transform: uppercase;
+}
+
+/* ─── Stat Counter ─── */
+.counter { display: flex; align-items: center; gap: 3px; justify-content: center; }
+.cnt-btn {
+  width: 20px; height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--panel2);
+  cursor: pointer;
+  color: var(--txt2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  user-select: none;
+  transition: all .1s;
+}
+.cnt-btn:hover { border-color: var(--green); color: var(--green); }
+.cnt-btn:active { transform: scale(.9); }
+.cnt-val {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 24px;
+  text-align: center;
+  color: var(--txt);
+}
+.cnt-val.pts-accent { color: var(--green); font-size: 14px; font-weight: 700; }
+
+/* ─── Delete btn ─── */
+.del-btn {
+  width: 24px; height: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--txt3);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px;
+  font-size: 13px;
+  transition: all .15s;
+}
+.del-btn:hover { background: var(--red-dim); color: var(--red); }
+
+/* ─── Add row ─── */
+.row-add td { background: transparent; border-bottom: none; }
+.add-player-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--txt3);
+  background: none;
+  border: 1px dashed var(--line2);
+  cursor: pointer;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  margin: 8px 16px;
+  font-family: var(--sans);
+  transition: all .15s;
+}
+.add-player-btn:hover { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+.add-player-btn i { font-size: 13px; }
+
+/* ─── KPI Grid ─── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  padding: 20px;
+}
+.kpi-card {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px 0;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transition: transform .15s;
+}
+.kpi-card:hover { transform: translateY(-2px); }
+.kpi-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.kpi-value {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--txt);
+  line-height: 1;
+  margin-bottom: 14px;
+}
+.kpi-bar {
+  height: 2px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+}
+.kpi-bar.green  { background: var(--green); }
+.kpi-bar.blue   { background: var(--blue); }
+.kpi-bar.purple { background: var(--purple); }
+.kpi-bar.red    { background: var(--red); }
+.kpi-bar.orange { background: var(--orange); }
+.kpi-bar.amber  { background: var(--amber); }
+
+/* ─── Per-player summary ─── */
+.per-player-wrap { padding: 0 20px 20px; }
+.section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 16px 0 10px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 0;
+}
+.summary-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.summary-table th {
+  padding: 8px 10px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--txt3);
+  border-bottom: 1px solid var(--line);
+  position: static;
+  background: transparent;
+}
+.summary-table th:first-child { text-align: left; }
+.summary-table td {
+  padding: 7px 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(28,38,64,.4);
+}
+.summary-table td:first-child { text-align: left; font-size: 13px; }
+.summary-table tr:last-child td { border-bottom: none; }
+.summary-table tr:hover td { background: rgba(255,255,255,.018); }
+body.light .summary-table tr:hover td { background: rgba(0,0,0,.025); }
+.td-pts { font-family: var(--mono); font-weight: 700; color: var(--green); }
+.td-num-cell { font-family: var(--mono); font-size: 11px; color: var(--txt2); }
+.td-foul-ok  { font-family: var(--mono); font-size: 11px; color: var(--txt2); }
+.td-foul-warn { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--amber); }
+.td-foul-out  { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--red); }
+.tag-elim {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--red);
+  background: var(--red-dim);
+  border: 1px solid rgba(240,82,82,.2);
+  border-radius: 20px;
+  padding: 1px 6px;
+  margin-left: 5px;
+  letter-spacing: .3px;
+}
+
+/* ─── Líderes ─── */
+.lideres-wrap { padding: 16px 20px 20px; }
+.cat-section { margin-bottom: 20px; }
+.cat-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+.lider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(28,38,64,.4);
+}
 .lider-row:last-child { border-bottom: none; }
-.lider-name { font-size: 13px; flex: 1; }
-.lider-bar-wrap { flex: 2; height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden; }
-.lider-bar { height: 100%; border-radius: 3px; background: var(--purple); }
-.lider-val { font-size: 15px; font-weight: 500; min-width: 32px; text-align: right; }
-.empty { color: var(--text-secondary); font-size: 13px; padding: 1rem 0; }
+.lider-rank {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--txt3);
+  width: 14px;
+  flex-shrink: 0;
+  text-align: right;
+}
+.lider-name { font-size: 13px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lider-bar-wrap { flex: 2; height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.lider-bar { height: 100%; border-radius: 2px; background: var(--green); transition: width .4s; }
+.lider-val { font-family: var(--mono); font-size: 14px; font-weight: 700; min-width: 32px; text-align: right; color: var(--txt); }
+
+.empty-state {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt3);
+  text-align: center;
+  padding: 32px 0;
+  letter-spacing: .3px;
+}
+
+/* ─── Tab content panels ─── */
+#tab-resumen, #tab-lideres { display: none; }
+
+/* ─── Animations ─── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.meta-card { animation: fade-up .3s ease both; }
+.toolbar   { animation: fade-up .3s .05s ease both; }
+.card      { animation: fade-up .3s .1s ease both; }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="card">
-    <div class="top-bar">
-      <h1><i class="ti ti-ball-basketball" aria-hidden="true"></i>Estadísticas de basketball</h1>
-      <div class="result-box">
-        <span>Resultado:</span>
-        <input class="result-input" id="res-local" placeholder="Local" type="text" oninput="saveMeta()">
-        <span style="font-weight:500">–</span>
-        <input class="result-input" id="res-rival" placeholder="Rival" type="text" oninput="saveMeta()">
+
+<!-- ─── Topbar ─── -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-dot"></div>
+    <span class="brand-name">e<span>-</span>digital</span>
+  </div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-meta" id="topbar-meta">BASKETBALL STATS</div>
+  <div class="topbar-actions">
+    <div class="save-indicator" id="save-indicator">
+      <i class="ti ti-device-floppy"></i>
+      <span id="save-text">Sin guardar</span>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema">
+      <i class="ti ti-sun" id="theme-icon"></i>
+    </button>
+  </div>
+</header>
+
+<!-- ─── Main ─── -->
+<main class="main">
+
+  <!-- Meta Card -->
+  <div class="meta-card">
+    <div class="meta-grid">
+      <div class="field-group">
+        <label class="field-label" for="meta-equipo">Equipo</label>
+        <input class="field-input" id="meta-equipo" placeholder="Nombre del equipo" type="text" oninput="saveMeta()">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="meta-rival">Rival</label>
+        <input class="field-input" id="meta-rival" placeholder="Equipo rival" type="text" oninput="saveMeta()">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="meta-fecha">Fecha</label>
+        <input class="field-input" id="meta-fecha" type="date" oninput="saveMeta()">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="meta-lugar">Lugar</label>
+        <input class="field-input" id="meta-lugar" placeholder="Cancha / sede" type="text" oninput="saveMeta()">
+      </div>
+      <div class="result-group">
+        <label class="field-label">Resultado</label>
+        <div class="result-inputs">
+          <input class="result-input" id="res-local" placeholder="00" type="text" oninput="saveMeta()" maxlength="3">
+          <span class="result-dash">–</span>
+          <input class="result-input" id="res-rival" placeholder="00" type="text" oninput="saveMeta()" maxlength="3">
+        </div>
       </div>
     </div>
-    <div class="meta-row">
-      <input id="meta-equipo" placeholder="Equipo" type="text" oninput="saveMeta()">
-      <input id="meta-rival" placeholder="Rival" type="text" oninput="saveMeta()">
-      <input id="meta-fecha" placeholder="Fecha" type="date" oninput="saveMeta()">
-      <input id="meta-lugar" placeholder="Lugar" type="text" oninput="saveMeta()">
-    </div>
-    <div class="toolbar">
-      <button class="btn" onclick="exportJSON()"><i class="ti ti-download" aria-hidden="true"></i>Exportar JSON</button>
-      <label class="btn" style="cursor:pointer"><i class="ti ti-upload" aria-hidden="true"></i>Importar JSON<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"></label>
-      <button class="btn btn-danger" onclick="resetAll()"><i class="ti ti-refresh" aria-hidden="true"></i>Reiniciar</button>
-      <span class="saved-badge" id="save-badge"><i class="ti ti-device-floppy" aria-hidden="true"></i><span id="save-text">Sin guardar</span></span>
-    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card">
+    <!-- Tabs -->
     <div class="tabs">
-      <button class="tab active" onclick="showTab('registro')"><i class="ti ti-clipboard-list" aria-hidden="true"></i>Registro</button>
-      <button class="tab" onclick="showTab('resumen')"><i class="ti ti-chart-bar" aria-hidden="true"></i>Resumen</button>
-      <button class="tab" onclick="showTab('lideres')"><i class="ti ti-trophy" aria-hidden="true"></i>Líderes</button>
+      <button class="tab active" onclick="showTab('registro')"><i class="ti ti-clipboard-list"></i>Registro</button>
+      <button class="tab" onclick="showTab('resumen')"><i class="ti ti-chart-bar"></i>Resumen</button>
+      <button class="tab" onclick="showTab('lideres')"><i class="ti ti-trophy"></i>Líderes</button>
     </div>
+
+    <!-- Tab: Registro -->
     <div id="tab-registro">
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
               <th class="th-num">#</th>
-              <th class="th-name" style="text-align:left">Jugador</th>
-              <th class="th-faltas">Faltas</th>
+              <th class="th-name">Jugador</th>
+              <th class="th-foul">Faltas</th>
               <th class="th-stat">REB</th>
               <th class="th-stat">ASIST</th>
               <th class="th-stat">BLQ</th>
@@ -149,15 +716,30 @@ tr:hover:not(.row-foul5):not(.row-foul4):not(.row-add) td { background: var(--bg
         </table>
       </div>
     </div>
-    <div id="tab-resumen" style="display:none">
-      <div class="summary-grid" id="summary-grid"></div>
-      <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem" id="per-player-summary"></div>
+
+    <!-- Tab: Resumen -->
+    <div id="tab-resumen">
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="per-player-wrap" id="per-player-wrap"></div>
     </div>
-    <div id="tab-lideres" style="display:none">
-      <div id="lideres-content"></div>
+
+    <!-- Tab: Líderes -->
+    <div id="tab-lideres">
+      <div class="lideres-wrap" id="lideres-wrap"></div>
     </div>
   </div>
-</div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="btn" onclick="exportJSON()"><i class="ti ti-download"></i>Exportar JSON</button>
+    <label class="btn" style="cursor:pointer">
+      <i class="ti ti-upload"></i>Importar JSON
+      <input type="file" accept=".json" style="display:none" onchange="importJSON(event)">
+    </label>
+    <button class="btn btn-danger" onclick="resetAll()"><i class="ti ti-refresh"></i>Reiniciar</button>
+  </div>
+
+</main>
 
 <script>
 const STORAGE_KEY = 'basketball_stats_v2';
@@ -171,12 +753,28 @@ let stats = [];
 let meta = { equipo:'', rival:'', fecha:'', lugar:'', resLocal:'', resRival:'' };
 let nextId = 1;
 
+/* ─── Theme ─── */
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  const icon = document.getElementById('theme-icon');
+  icon.className = document.body.classList.contains('light') ? 'ti ti-moon' : 'ti ti-sun';
+  localStorage.setItem('bball_theme', document.body.classList.contains('light') ? 'light' : 'dark');
+}
+function applyTheme() {
+  const saved = localStorage.getItem('bball_theme');
+  if (saved === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('theme-icon').className = 'ti ti-moon';
+  }
+}
+
+/* ─── Data ─── */
 function mkPlayer(nombre, num) {
   return { id: nextId++, num: num || nextId, nombre, faltas:0, reb:0, asist:0, blq:0, rob:0, tp:0, pts:0 };
 }
 function defaultStats() {
   nextId = 1;
-  return DEFAULT_PLAYERS.map((n, i) => mkPlayer(n, i+1));
+  return DEFAULT_PLAYERS.map((n, i) => mkPlayer(n, i + 1));
 }
 
 function loadFromStorage() {
@@ -195,29 +793,43 @@ function saveToStorage() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ stats, meta, savedAt: new Date().toISOString() }));
     const t = new Date();
+    const el = document.getElementById('save-indicator');
     document.getElementById('save-text').textContent = 'Guardado ' + t.toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'});
+    el.classList.add('saved');
   } catch(e) {}
 }
 
 function applyMetaToDOM() {
   document.getElementById('meta-equipo').value = meta.equipo || '';
-  document.getElementById('meta-rival').value = meta.rival || '';
-  document.getElementById('meta-fecha').value = meta.fecha || '';
-  document.getElementById('meta-lugar').value = meta.lugar || '';
-  document.getElementById('res-local').value = meta.resLocal || '';
-  document.getElementById('res-rival').value = meta.resRival || '';
+  document.getElementById('meta-rival').value  = meta.rival  || '';
+  document.getElementById('meta-fecha').value  = meta.fecha  || '';
+  document.getElementById('meta-lugar').value  = meta.lugar  || '';
+  document.getElementById('res-local').value   = meta.resLocal  || '';
+  document.getElementById('res-rival').value   = meta.resRival  || '';
+  updateTopbarMeta();
+}
+
+function updateTopbarMeta() {
+  const parts = [];
+  if (meta.equipo) parts.push(meta.equipo);
+  if (meta.rival)  parts.push('vs ' + meta.rival);
+  if (meta.fecha)  parts.push(meta.fecha);
+  if (meta.lugar)  parts.push(meta.lugar);
+  document.getElementById('topbar-meta').textContent = parts.length ? parts.join(' · ') : 'BASKETBALL STATS';
 }
 
 function saveMeta() {
-  meta.equipo = document.getElementById('meta-equipo').value;
-  meta.rival = document.getElementById('meta-rival').value;
-  meta.fecha = document.getElementById('meta-fecha').value;
-  meta.lugar = document.getElementById('meta-lugar').value;
+  meta.equipo   = document.getElementById('meta-equipo').value;
+  meta.rival    = document.getElementById('meta-rival').value;
+  meta.fecha    = document.getElementById('meta-fecha').value;
+  meta.lugar    = document.getElementById('meta-lugar').value;
   meta.resLocal = document.getElementById('res-local').value;
   meta.resRival = document.getElementById('res-rival').value;
+  updateTopbarMeta();
   saveToStorage();
 }
 
+/* ─── Export / Import / Reset ─── */
 function exportJSON() {
   const blob = new Blob([JSON.stringify({stats, meta, exportedAt: new Date().toISOString()}, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -238,11 +850,9 @@ function importJSON(event) {
       const data = JSON.parse(e.target.result);
       if (data.stats && Array.isArray(data.stats)) {
         stats = data.stats;
-        meta = data.meta || {};
+        meta  = data.meta || {};
         nextId = Math.max(...stats.map(p => p.id || 0), 0) + 1;
-        saveToStorage();
-        applyMetaToDOM();
-        buildTable();
+        saveToStorage(); applyMetaToDOM(); buildTable();
         document.getElementById('save-text').textContent = 'Importado';
       } else { alert('JSON inválido.'); }
     } catch(err) { alert('Error al leer el archivo.'); }
@@ -253,32 +863,28 @@ function importJSON(event) {
 
 function resetAll() {
   if (!confirm('¿Reiniciar todas las estadísticas? Esto no se puede deshacer.')) return;
-  stats = defaultStats();
-  meta = {};
-  saveToStorage();
-  applyMetaToDOM();
-  buildTable();
+  stats = defaultStats(); meta = {};
+  saveToStorage(); applyMetaToDOM(); buildTable();
   document.getElementById('save-text').textContent = 'Reiniciado';
 }
 
+/* ─── Player operations ─── */
 function addPlayer() {
   const p = mkPlayer('Nuevo jugador', stats.length + 1);
   stats.push(p);
   saveToStorage();
   const tbody = document.getElementById('players-table');
   const addRow = tbody.querySelector('.row-add');
-  const tr = createRow(p, stats.length - 1);
+  const tr = createRow(p);
   tbody.insertBefore(tr, addRow);
-  const nameInput = tr.querySelector('.name-input');
-  if (nameInput) { nameInput.focus(); nameInput.select(); }
+  const ni = tr.querySelector('.name-input');
+  if (ni) { ni.focus(); ni.select(); }
 }
 
 function deletePlayer(id) {
   if (stats.length <= 1) { alert('Debe haber al menos un jugador.'); return; }
   if (!confirm('¿Eliminar este jugador?')) return;
-  const idx = stats.findIndex(p => p.id === id);
-  if (idx === -1) return;
-  stats.splice(idx, 1);
+  stats.splice(stats.findIndex(p => p.id === id), 1);
   saveToStorage();
   const row = document.querySelector('[data-id="' + id + '"]');
   if (row) row.remove();
@@ -309,6 +915,21 @@ function dec(id, key) {
   updateStatCell(id, key, p[key]);
 }
 
+function setNum(id, val) {
+  const n = parseInt(val);
+  if (isNaN(n) || n < 0 || n > 99) return;
+  const p = stats.find(x => x.id === id);
+  if (p) { p.num = n; saveToStorage(); }
+}
+
+function setName(id, val) {
+  const trimmed = val.trim();
+  if (!trimmed) return;
+  const p = stats.find(x => x.id === id);
+  if (p) { p.nombre = trimmed; saveToStorage(); }
+}
+
+/* ─── DOM updaters ─── */
 function updateStatCell(id, key, val) {
   const row = document.querySelector('[data-id="' + id + '"]');
   if (!row) return;
@@ -331,26 +952,22 @@ function updateRowClass(id, faltas) {
   if (!row) return;
   row.classList.toggle('row-foul5', faltas >= 5);
   row.classList.toggle('row-foul4', faltas === 4);
-  const badge = row.querySelector('.foul-badge');
+  const badge = row.querySelector('.elim-badge');
   if (badge) badge.style.display = faltas >= 5 ? 'inline' : 'none';
 }
 
-function setNum(id, val) {
-  const n = parseInt(val);
-  if (isNaN(n) || n < 0 || n > 99) return;
-  const p = stats.find(x => x.id === id);
-  if (p) { p.num = n; saveToStorage(); }
-}
-
-function setName(id, val) {
-  const trimmed = val.trim();
-  if (!trimmed) return;
-  const p = stats.find(x => x.id === id);
-  if (p) { p.nombre = trimmed; saveToStorage(); }
-}
-
+/* ─── HTML builders ─── */
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function mkCounter(id, key, val, accent) {
+  const cls = accent ? 'cnt-val pts-accent' : 'cnt-val';
+  return '<td><div class="counter">' +
+    '<button class="cnt-btn" onclick="dec(' + id + ',\'' + key + '\')" aria-label="Restar">−</button>' +
+    '<span class="' + cls + '" data-stat="' + key + '">' + val + '</span>' +
+    '<button class="cnt-btn" onclick="inc(' + id + ',\'' + key + '\')" aria-label="Sumar">+</button>' +
+    '</div></td>';
 }
 
 function createRow(p) {
@@ -367,21 +984,17 @@ function createRow(p) {
 
   tr.innerHTML =
     '<td><input class="num-input" value="' + p.num + '" type="number" min="0" max="99" onchange="setNum(' + p.id + ',this.value)"></td>' +
-    '<td class="td-name"><span class="player-name"><input class="name-input" value="' + escHtml(p.nombre) + '" onblur="setName(' + p.id + ',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()"></span>' +
-    '<span class="foul-badge" style="display:' + (p.faltas>=5?'inline':'none') + '">ELIMINADO</span></td>' +
+    '<td class="td-name"><span class="player-name-text"><input class="name-input" value="' + escHtml(p.nombre) + '" onblur="setName(' + p.id + ',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()"></span>' +
+    '<span class="elim-badge" style="display:' + (p.faltas >= 5 ? 'inline' : 'none') + '">ELIM</span></td>' +
     '<td><div class="faltas-row">' + faltasHTML + '</div></td>' +
-    mkCounter(p.id, 'reb', p.reb) +
+    mkCounter(p.id, 'reb',   p.reb)   +
     mkCounter(p.id, 'asist', p.asist) +
-    mkCounter(p.id, 'blq', p.blq) +
-    mkCounter(p.id, 'rob', p.rob) +
-    mkCounter(p.id, 'tp', p.tp) +
-    '<td><div class="pts-controls"><button class="pts-btn" onclick="dec(' + p.id + ',\'pts\')" aria-label="Restar punto">−</button><span class="pts-val pts-purple" data-stat="pts">' + p.pts + '</span><button class="pts-btn" onclick="inc(' + p.id + ',\'pts\')" aria-label="Sumar punto">+</button></div></td>' +
-    '<td><button class="del-btn" onclick="deletePlayer(' + p.id + ')" title="Eliminar jugador" aria-label="Eliminar jugador"><i class="ti ti-x" aria-hidden="true"></i></button></td>';
+    mkCounter(p.id, 'blq',   p.blq)   +
+    mkCounter(p.id, 'rob',   p.rob)   +
+    mkCounter(p.id, 'tp',    p.tp)    +
+    mkCounter(p.id, 'pts',   p.pts, true) +
+    '<td><button class="del-btn" onclick="deletePlayer(' + p.id + ')" title="Eliminar" aria-label="Eliminar jugador"><i class="ti ti-x"></i></button></td>';
   return tr;
-}
-
-function mkCounter(id, key, val) {
-  return '<td><div class="pts-controls"><button class="pts-btn" onclick="dec(' + id + ',\'' + key + '\')" aria-label="Restar ' + key + '">−</button><span class="pts-val" data-stat="' + key + '">' + val + '</span><button class="pts-btn" onclick="inc(' + id + ',\'' + key + '\')" aria-label="Sumar ' + key + '">+</button></div></td>';
 }
 
 function buildTable() {
@@ -390,73 +1003,111 @@ function buildTable() {
   stats.forEach(p => tbody.appendChild(createRow(p)));
   const addRow = document.createElement('tr');
   addRow.className = 'row-add';
-  addRow.innerHTML = '<td colspan="10"><button class="add-player-btn" onclick="addPlayer()"><i class="ti ti-plus" aria-hidden="true"></i>Agregar jugador</button></td>';
+  addRow.innerHTML = '<td colspan="10"><button class="add-player-btn" onclick="addPlayer()"><i class="ti ti-plus"></i>Agregar jugador</button></td>';
   tbody.appendChild(addRow);
 }
 
+/* ─── Totals ─── */
 function totals() {
-  return ['pts','reb','asist','blq','rob','tp','faltas'].reduce((acc,k) => {
-    acc[k] = stats.reduce((s,p) => s + (p[k]||0), 0); return acc;
+  return ['pts','reb','asist','blq','rob','tp','faltas'].reduce((acc, k) => {
+    acc[k] = stats.reduce((s, p) => s + (p[k] || 0), 0);
+    return acc;
   }, {});
 }
 
+/* ─── Resumen tab ─── */
 function buildResumen() {
   const t = totals();
-  document.getElementById('summary-grid').innerHTML = [
-    {label:'Puntos totales',val:t.pts},{label:'Rebotes',val:t.reb},
-    {label:'Asistencias',val:t.asist},{label:'Bloqueos',val:t.blq},
-    {label:'Robos',val:t.rob},{label:'T. perdidos',val:t.tp},{label:'Faltas acum.',val:t.faltas}
-  ].map(i => '<div class="stat-card"><div class="lbl">' + i.label + '</div><div class="val">' + i.val + '</div></div>').join('');
+  const kpis = [
+    {label:'Puntos',    val:t.pts,    bar:'green'},
+    {label:'Rebotes',   val:t.reb,    bar:'blue'},
+    {label:'Asistencias',val:t.asist, bar:'purple'},
+    {label:'Bloqueos',  val:t.blq,    bar:'amber'},
+    {label:'Robos',     val:t.rob,    bar:'orange'},
+    {label:'T. perd.',  val:t.tp,     bar:'red'},
+    {label:'Faltas',    val:t.faltas, bar:'red'},
+  ];
+  document.getElementById('kpi-grid').innerHTML = kpis.map(k =>
+    '<div class="kpi-card"><div class="kpi-label">' + k.label + '</div><div class="kpi-value">' + k.val + '</div><div class="kpi-bar ' + k.bar + '"></div></div>'
+  ).join('');
 
-  const active = stats.filter(p => p.pts||p.reb||p.asist||p.blq||p.rob||p.faltas);
-  document.getElementById('per-player-summary').innerHTML =
+  const active = stats.filter(p => p.pts || p.reb || p.asist || p.blq || p.rob || p.faltas);
+  const ppp = document.getElementById('per-player-wrap');
+  if (!active.length) {
+    ppp.innerHTML = '<p class="empty-state">Sin datos registrados.</p>';
+    return;
+  }
+  const headers = ['Jugador','PTS','REB','AST','BLQ','ROB','FAL'];
+  ppp.innerHTML =
     '<div class="section-label">Por jugador</div>' +
-    (active.length ?
-      '<table style="width:100%;font-size:12px;border-collapse:collapse;"><thead><tr style="background:var(--bg-secondary);">' +
-      ['Jugador','PTS','REB','AST','BLQ','ROB','FAL'].map((h,i)=>'<th style="padding:5px 4px;font-weight:500;color:var(--text-secondary);' + (i===0?'text-align:left;':'') + '">' + h + '</th>').join('') +
-      '</tr></thead><tbody>' +
-      active.map(p =>
-        '<tr style="border-bottom:0.5px solid var(--border);">' +
-        '<td style="padding:5px 4px;">' + escHtml(p.nombre) + (p.faltas>=5 ? ' <span style="font-size:10px;color:var(--red)">ELIM</span>' : '') + '</td>' +
-        '<td style="text-align:center;padding:5px 4px;font-weight:500;color:var(--purple);">' + p.pts + '</td>' +
-        ['reb','asist','blq','rob'].map(k=>'<td style="text-align:center;padding:5px 4px;">' + p[k] + '</td>').join('') +
-        '<td style="text-align:center;padding:5px 4px;color:' + (p.faltas>=5?'var(--red)':p.faltas===4?'var(--amber)':'var(--text)') + ';font-weight:' + (p.faltas>=4?'500':'400') + ';">' + p.faltas + '</td>' +
-        '</tr>'
-      ).join('') + '</tbody></table>'
-      : '<p class="empty">Sin datos registrados.</p>');
+    '<table class="summary-table"><thead><tr>' +
+    headers.map((h,i) => '<th' + (i===0?' style="text-align:left"':'') + '>' + h + '</th>').join('') +
+    '</tr></thead><tbody>' +
+    active.map(p => {
+      const fCls = p.faltas >= 5 ? 'td-foul-out' : p.faltas === 4 ? 'td-foul-warn' : 'td-foul-ok';
+      const elim = p.faltas >= 5 ? '<span class="tag-elim">ELIM</span>' : '';
+      return '<tr>' +
+        '<td>' + escHtml(p.nombre) + elim + '</td>' +
+        '<td class="td-pts">' + p.pts + '</td>' +
+        '<td class="td-num-cell">' + p.reb + '</td>' +
+        '<td class="td-num-cell">' + p.asist + '</td>' +
+        '<td class="td-num-cell">' + p.blq + '</td>' +
+        '<td class="td-num-cell">' + p.rob + '</td>' +
+        '<td class="' + fCls + '">' + p.faltas + '</td>' +
+        '</tr>';
+    }).join('') +
+    '</tbody></table>';
 }
 
+/* ─── Líderes tab ─── */
 function buildLideres() {
-  const cats = [{key:'pts',label:'Anotadores'},{key:'reb',label:'Rebotes'},{key:'asist',label:'Asistencias'},{key:'blq',label:'Bloqueos'},{key:'rob',label:'Robos'}];
+  const cats = [
+    {key:'pts',   label:'Anotadores'},
+    {key:'reb',   label:'Rebotes'},
+    {key:'asist', label:'Asistencias'},
+    {key:'blq',   label:'Bloqueos'},
+    {key:'rob',   label:'Robos'},
+  ];
   let html = '';
   cats.forEach(cat => {
-    const sorted = [...stats].filter(p=>p[cat.key]>0).sort((a,b)=>b[cat.key]-a[cat.key]).slice(0,5);
+    const sorted = [...stats].filter(p => p[cat.key] > 0).sort((a,b) => b[cat.key] - a[cat.key]).slice(0, 5);
     if (!sorted.length) return;
     const max = sorted[0][cat.key];
-    html += '<div class="section-label">' + cat.label + '</div><div style="background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:10px 14px;margin-bottom:12px;">' +
-      sorted.map(p => {
-        const pct = max > 0 ? Math.round((p[cat.key]/max)*100) : 0;
-        return '<div class="lider-row"><span class="lider-name">' + escHtml(p.nombre) + '</span><div class="lider-bar-wrap"><div class="lider-bar" style="width:' + pct + '%"></div></div><span class="lider-val">' + p[cat.key] + '</span></div>';
+    html += '<div class="cat-section"><div class="cat-title">' + cat.label + '</div>' +
+      sorted.map((p, i) => {
+        const pct = max > 0 ? Math.round((p[cat.key] / max) * 100) : 0;
+        return '<div class="lider-row">' +
+          '<span class="lider-rank">' + (i+1) + '</span>' +
+          '<span class="lider-name">' + escHtml(p.nombre) + '</span>' +
+          '<div class="lider-bar-wrap"><div class="lider-bar" style="width:' + pct + '%"></div></div>' +
+          '<span class="lider-val">' + p[cat.key] + '</span>' +
+          '</div>';
       }).join('') + '</div>';
   });
-  document.getElementById('lideres-content').innerHTML = html || '<p class="empty">Sin datos registrados aún.</p>';
+  document.getElementById('lideres-wrap').innerHTML = html || '<p class="empty-state">Sin datos registrados aún.</p>';
 }
 
+/* ─── Tab switching ─── */
 function showTab(name) {
   ['registro','resumen','lideres'].forEach(t => {
-    document.getElementById('tab-' + t).style.display = t===name ? 'block' : 'none';
+    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
   });
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    t.classList.toggle('active', ['registro','resumen','lideres'][i]===name);
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['registro','resumen','lideres'][i] === name);
   });
-  if (name==='resumen') buildResumen();
-  if (name==='lideres') buildLideres();
+  if (name === 'resumen') buildResumen();
+  if (name === 'lideres') buildLideres();
 }
 
+/* ─── Init ─── */
+applyTheme();
 if (!loadFromStorage()) stats = defaultStats();
 applyMetaToDOM();
 buildTable();
-if (localStorage.getItem(STORAGE_KEY)) document.getElementById('save-text').textContent = 'Cargado';
+if (localStorage.getItem(STORAGE_KEY)) {
+  document.getElementById('save-text').textContent = 'Cargado';
+  document.getElementById('save-indicator').classList.add('saved');
+}
 </script>
 </body>
 </html>
