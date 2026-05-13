@@ -12,198 +12,206 @@
   :root {
     --red:    #ff2200;
     --yellow: #ffaa00;
+    --green:  #00cc44;
     --bg:     #080808;
     --border: #1e1e1e;
     --glow-r: 0 0 12px #ff2200, 0 0 40px #ff220055;
     --glow-y: 0 0 12px #ffaa00, 0 0 40px #ffaa0055;
+    --num-size: 100px;
   }
+
+  html, body { width: 100%; height: 100%; overflow: hidden; }
 
   body {
     background: var(--bg);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
     font-family: 'Orbitron', sans-serif;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
   }
 
-  .board {
-    width: min(98vw, 700px);
-    background: #0b0b0b;
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 12px 12px;
-    box-shadow: 0 0 80px #000000aa;
-    user-select: none;
+  /* ── Clock ── */
+  .clock-section {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0 4px;
+    border-bottom: 1px solid var(--border);
   }
 
   .clock-wrap {
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 2px;
-    padding: 8px 0 12px;
     cursor: pointer;
+    border-radius: 8px;
+    padding: 2px 8px;
+    transition: background .15s;
+    line-height: 1;
   }
+  .clock-wrap:hover { background: rgba(255,255,255,.03); }
 
   .clock-num {
-    font-size: clamp(80px, 18vw, 130px);
+    font-size: var(--num-size);
     font-weight: 900;
     color: var(--red);
     text-shadow: var(--glow-r);
     line-height: 1;
-    min-width: 1ch;
+    min-width: .65em;
     text-align: center;
   }
 
   .clock-sep {
-    font-size: clamp(70px, 15vw, 110px);
+    font-size: var(--num-size);
     font-weight: 900;
     color: var(--red);
     text-shadow: var(--glow-r);
     line-height: 1;
-    padding: 0 4px;
+    width: .35em;
+    text-align: center;
   }
   .running .clock-sep { animation: blink 1s step-end infinite; }
-  .stopped .clock-sep { animation: none; opacity: 1; }
   @keyframes blink { 50% { opacity: 0; } }
 
   .clock-ctrl {
     display: flex;
-    justify-content: center;
-    gap: 14px;
-    margin-bottom: 14px;
+    gap: 10px;
+    margin-top: 6px;
   }
 
   .btn-main {
     background: #111;
     border: 2px solid #333;
-    border-radius: 8px;
+    border-radius: 6px;
     color: #999;
     font-family: 'Orbitron', sans-serif;
-    font-size: 13px;
+    font-size: 11px;
     letter-spacing: 2px;
-    padding: 10px 28px;
+    padding: 7px 20px;
     cursor: pointer;
     transition: all .18s;
   }
-  .btn-main:hover  { border-color: var(--yellow); color: var(--yellow); background: #181200; }
-  .btn-main.go     { border-color: #00cc44; color: #00cc44; }
+  .btn-main:hover   { border-color: var(--yellow); color: var(--yellow); background: #181200; }
+  .btn-main.go      { border-color: var(--green);  color: var(--green); }
   .btn-main.go:hover { background: #001a08; }
-  .btn-main.danger { border-color: #cc2200; color: #cc2200; }
+  .btn-main.danger  { border-color: #cc2200; color: #cc2200; }
   .btn-main.danger:hover { background: #1a0000; }
 
-  .scores {
+  /* ── Scores ── */
+  .scores-section {
+    flex: 1 1 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 10px;
+    min-height: 0;
   }
 
   .team-block {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 10px 6px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: #0e0e0e;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+    gap: 4px;
+    padding: 4px 4px 8px;
   }
+  .team-block:last-child { border-right: none; }
 
   .team-label {
-    font-size: 12px;
-    letter-spacing: 3px;
-    color: #555;
+    font-size: clamp(10px, 1.2vw, 16px);
+    letter-spacing: 4px;
+    color: #3a3a3a;
+    text-transform: uppercase;
   }
 
   .score-num {
-    font-size: clamp(72px, 16vw, 120px);
+    font-size: var(--num-size);
     font-weight: 900;
     color: var(--yellow);
     text-shadow: var(--glow-y);
     line-height: 1;
-  }
-
-  .pt-btns {
-    display: flex;
-    gap: 8px;
-  }
-
-  .pt-btn {
-    background: #111;
-    border: 2px solid #333;
-    border-radius: 6px;
-    color: #888;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 15px;
-    font-weight: 900;
-    width: 64px;
-    height: 48px;
     cursor: pointer;
-    transition: all .15s;
+    padding: 0 6px;
+    border-radius: 10px;
+    transition: filter .1s;
+    min-width: 1.3em;
+    text-align: center;
+  }
+  .score-num:hover { filter: brightness(1.3); }
+  .score-num.flash { filter: brightness(2.8); }
+
+  .score-hint {
+    font-size: clamp(8px, .9vw, 11px);
     letter-spacing: 1px;
+    color: #222;
+    text-transform: uppercase;
   }
-  .pt-btn:hover  { border-color: var(--yellow); color: var(--yellow); background: #181200; }
-  .pt-btn:active { transform: scale(.92); }
-
-  .pt-btn.minus {
-    font-size: 20px;
-    color: #444;
-    border-color: #222;
-  }
-  .pt-btn.minus:hover { border-color: #cc2200; color: #cc2200; background: #1a0000; }
-
-  hr { border: none; border-top: 1px solid var(--border); margin: 4px 0 10px; }
 </style>
 </head>
 <body>
-<div class="board">
 
-  <div class="clock-wrap stopped" id="clockWrap" onclick="editClock()">
-    <span class="clock-num" id="cM1">1</span>
-    <span class="clock-num" id="cM2">0</span>
-    <span class="clock-sep">:</span>
-    <span class="clock-num" id="cS1">0</span>
-    <span class="clock-num" id="cS2">0</span>
-  </div>
-
-  <div class="clock-ctrl">
-    <button class="btn-main go" id="startStopBtn" onclick="toggleClock()">▶ START</button>
-    <button class="btn-main danger" onclick="resetAll()">↺ RESET</button>
-  </div>
-
-  <hr>
-
-  <div class="scores">
-    <div class="team-block">
-      <span class="team-label">LOCAL</span>
-      <div class="score-num" id="scoreHome">00</div>
-      <div class="pt-btns">
-        <button class="pt-btn" onclick="addScore('home',1)">+1</button>
-        <button class="pt-btn" onclick="addScore('home',2)">+2</button>
-        <button class="pt-btn minus" onclick="addScore('home',-1)">−</button>
-      </div>
+  <div class="clock-section" id="clockSection">
+    <div class="clock-wrap stopped" id="clockWrap" onclick="editClock()">
+      <span class="clock-num" id="cM1">1</span>
+      <span class="clock-num" id="cM2">0</span>
+      <span class="clock-sep">:</span>
+      <span class="clock-num" id="cS1">0</span>
+      <span class="clock-num" id="cS2">0</span>
     </div>
-    <div class="team-block">
-      <span class="team-label">VISITANTE</span>
-      <div class="score-num" id="scoreAway">00</div>
-      <div class="pt-btns">
-        <button class="pt-btn" onclick="addScore('away',1)">+1</button>
-        <button class="pt-btn" onclick="addScore('away',2)">+2</button>
-        <button class="pt-btn minus" onclick="addScore('away',-1)">−</button>
-      </div>
+    <div class="clock-ctrl">
+      <button class="btn-main go" id="startStopBtn" onclick="toggleClock()">▶ START</button>
+      <button class="btn-main danger" onclick="resetAll()">↺ RESET</button>
     </div>
   </div>
-</div>
+
+  <div class="scores-section">
+    <div class="team-block">
+      <span class="team-label">Local</span>
+      <div class="score-num" id="scoreHome" onclick="scoreClick('home',event)">00</div>
+      <span class="score-hint">click +1 · dbl −1</span>
+    </div>
+    <div class="team-block">
+      <span class="team-label">Visitante</span>
+      <div class="score-num" id="scoreAway" onclick="scoreClick('away',event)">00</div>
+      <span class="score-hint">click +1 · dbl −1</span>
+    </div>
+  </div>
 
 <script>
-  const s = { home: 0, away: 0, secs: 600, running: false, iv: null };
+  const s = { home:0, away:0, secs:600, running:false, iv:null };
   const pad = n => String(n).padStart(2,'0');
   const fmt = n => String(Math.max(0,n)).padStart(2,'0');
 
+  /* ── Fit numbers to screen ── */
+  function fitNumbers() {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+
+    // Fixed overhead: controls + labels + hints + padding (measured empirically)
+    const overhead = 68;
+
+    // Remaining height after controls section
+    // Clock and scores each use one "row" of the number height
+    const availH = H - overhead;
+    const byH = availH / 2;   // clock row + score row share equally
+
+    // Width constraints
+    // Clock: 4 digits (≈0.65em each) + 1 colon (≈0.35em) = 2.95em in 100vw
+    const byW_clock = W / 2.95;
+    // Score: 2 digits (≈0.65em) + padding (≈0.12em) in half the viewport
+    const byW_score = (W / 2) / 1.42;
+
+    const size = Math.floor(Math.min(byH, byW_clock, byW_score));
+    document.documentElement.style.setProperty('--num-size', size + 'px');
+  }
+  window.addEventListener('resize', fitNumbers);
+  /* Run after fonts load so measurements are accurate */
+  document.fonts.ready.then(fitNumbers);
+  fitNumbers();
+
+  /* ── Clock ── */
   function renderClock() {
-    const m = pad(Math.floor(s.secs / 60));
+    const m   = pad(Math.floor(s.secs / 60));
     const sec = pad(s.secs % 60);
     document.getElementById('cM1').textContent = m[0];
     document.getElementById('cM2').textContent = m[1];
@@ -218,24 +226,38 @@
 
   function toggleClock() {
     s.running = !s.running;
-    const btn = document.getElementById('startStopBtn');
+    const btn  = document.getElementById('startStopBtn');
     const wrap = document.getElementById('clockWrap');
     if (s.running) {
-      btn.textContent = '⏸ STOP';
-      btn.className = 'btn-main';
-      wrap.className = 'clock-wrap running';
+      btn.textContent = '⏸ STOP'; btn.className = 'btn-main';
+      wrap.className  = 'clock-wrap running';
       s.iv = setInterval(() => {
         if (s.secs > 0) { s.secs--; renderClock(); }
         else {
           clearInterval(s.iv); s.running = false;
           btn.textContent = '▶ START'; btn.className = 'btn-main go';
-          wrap.className = 'clock-wrap stopped';
+          wrap.className  = 'clock-wrap stopped';
         }
       }, 1000);
     } else {
       clearInterval(s.iv);
       btn.textContent = '▶ START'; btn.className = 'btn-main go';
-      wrap.className = 'clock-wrap stopped';
+      wrap.className  = 'clock-wrap stopped';
+    }
+  }
+
+  /* ── Score click ── */
+  const _scoreTimers = {};
+  function scoreClick(team, e) {
+    clearTimeout(_scoreTimers[team]);
+    if (e.detail === 1) {
+      _scoreTimers[team] = setTimeout(() => {
+        delete _scoreTimers[team];
+        addScore(team, 1);
+      }, 400);
+    } else {
+      delete _scoreTimers[team];
+      addScore(team, -1);
     }
   }
 
@@ -243,8 +265,8 @@
     s[team] = Math.max(0, s[team] + delta);
     renderScores();
     const el = document.getElementById(team === 'home' ? 'scoreHome' : 'scoreAway');
-    el.style.filter = 'brightness(2.2)';
-    setTimeout(() => el.style.filter = '', 160);
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 160);
   }
 
   function editClock() {
@@ -258,10 +280,10 @@
   function resetAll() {
     if (!confirm('¿Resetear?')) return;
     clearInterval(s.iv);
-    Object.assign(s, { home:0, away:0, secs:600, running:false });
+    Object.assign(s, { home:0, away:0, secs:600, running:false, iv:null });
     document.getElementById('startStopBtn').textContent = '▶ START';
-    document.getElementById('startStopBtn').className = 'btn-main go';
-    document.getElementById('clockWrap').className = 'clock-wrap stopped';
+    document.getElementById('startStopBtn').className   = 'btn-main go';
+    document.getElementById('clockWrap').className      = 'clock-wrap stopped';
     renderClock(); renderScores();
   }
 
