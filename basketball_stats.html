@@ -1207,30 +1207,35 @@ function buildResumen() {
     return r > 0.9 ? 'var(--green)' : r >= 0.5 ? 'var(--blue)' : r >= 0.33 ? 'var(--amber)' : 'var(--red)';
   };
 
-  const headers = ['Player','PTS','1PT','1PT%','2PT','2PT%','REB','AST','BLK','STL','TO','FL'];
+  const headers = ['Player','PTS','FG','FG%','1PT','1PT%','2PT','2PT%','REB','AST','BLK','STL','TO','FL'];
   wrap.innerHTML =
     '<table class="summary-table"><thead><tr>' +
     headers.map(h => {
-      if (h === '1PT' || h === '2PT') return '<th style="color:var(--blue)">' + h + '</th>';
+      if (h === 'FG')            return '<th style="color:var(--gold)">' + h + '</th>';
+      if (h === 'FG%')           return '<th style="color:var(--txt3);font-style:italic">' + h + '</th>';
+      if (h === '1PT' || h === '2PT')   return '<th style="color:var(--blue)">' + h + '</th>';
       if (h === '1PT%' || h === '2PT%') return '<th style="color:var(--txt3);font-style:italic">' + h + '</th>';
       return '<th>' + h + '</th>';
     }).join('') +
     '</tr></thead><tbody>' +
     active.map(p => {
-      const fCls = p.faltas >= 5 ? 'td-red' : p.faltas === 4 ? 'td-amber' : '';
-      const elim = p.faltas >= 5 ? '<span class="elim-tag">OUT</span>' : '';
-      // FIX #5: marcar en resumen si hay inconsistencia encestes > intentos
+      const fCls  = p.faltas >= 5 ? 'td-red' : p.faltas === 4 ? 'td-amber' : '';
+      const elim  = p.faltas >= 5 ? '<span class="elim-tag">OUT</span>' : '';
       const t1warn = (p.t1a > 0 && p.t1 > p.t1a) ? ' style="color:var(--amber)"' : '';
       const t2warn = (p.t2a > 0 && p.t2 > p.t2a) ? ' style="color:var(--amber)"' : '';
+      const fgm   = (p.t1||0) + (p.t2||0);
+      const fga   = (p.t1a||0) + (p.t2a||0);
       return '<tr>' +
         '<td>' + escHtml(p.nombre) + elim + '</td>' +
         '<td class="td-pts-s">' + p.pts + '</td>' +
-        '<td style="color:var(--blue)"' + t1warn + '>' + (p.t1||0) + '<span style="color:var(--txt3);font-size: 11px">/' + (p.t1a||0) + '</span></td>' +
+        '<td style="color:var(--gold)">' + fgm + '<span style="color:var(--txt3);font-size:11px">/' + fga + '</span></td>' +
+        '<td style="color:' + pctColor(fgm, fga) + ';font-style:italic">' + pct(fgm, fga) + '</td>' +
+        '<td style="color:var(--blue)"' + t1warn + '>' + (p.t1||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t1a||0) + '</span></td>' +
         '<td style="color:' + pctColor(p.t1||0, p.t1a||0) + ';font-style:italic">' + pct(p.t1||0, p.t1a||0) + '</td>' +
-        '<td style="color:var(--blue)"' + t2warn + '>' + (p.t2||0) + '<span style="color:var(--txt3);font-size: 11px">/' + (p.t2a||0) + '</span></td>' +
+        '<td style="color:var(--blue)"' + t2warn + '>' + (p.t2||0) + '<span style="color:var(--txt3);font-size:11px">/' + (p.t2a||0) + '</span></td>' +
         '<td style="color:' + pctColor(p.t2||0, p.t2a||0) + ';font-style:italic">' + pct(p.t2||0, p.t2a||0) + '</td>' +
         '<td>' + p.reb + '</td><td>' + p.asist + '</td><td>' + p.blq + '</td><td>' + p.rob + '</td>' +
-        '<td >' + p.tp + '</td>' +
+        '<td>' + p.tp + '</td>' +
         '<td class="' + fCls + '">' + p.faltas + '</td>' +
         '</tr>';
     }).join('') +
