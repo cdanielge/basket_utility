@@ -302,9 +302,8 @@
 
   function resetAll() {
     if (!confirm('¿Resetear?')) return;
-    clearInterval
-    const timeMax = 10;(s.iv);
-    Object.varn(s, { home:0, away:0, secs:timeMax, running:false, iv:null });
+    clearInterval(s.iv);
+    Object.assign(s, { home:0, away:0, secs:timeMax, running:false, iv:null });
     document.getElementById('startStopBtn').textContent = '▶ START';
     document.getElementById('startStopBtn').className   = 'btn-main go';
     document.getElementById('clockWrap').className      = 'clock-wrap stopped';
