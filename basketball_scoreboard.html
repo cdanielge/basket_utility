@@ -151,6 +151,7 @@
   }
   .score-num:hover { filter: brightness(1.3); }
   .score-num.flash { filter: brightness(2.8); }
+  .score-away { color: #ffffff; text-shadow: 0 0 12px #ffffff, 0 0 40px #ffffff55; }
 
   .score-hint {
     font-size: clamp(8px, .9vw, 11px);
@@ -186,7 +187,7 @@
     </div>
     <div class="team-block">
       <span class="team-label">Visitante</span>
-      <div class="score-num" id="scoreAway" onclick="scoreClick('away',event)">00</div>
+      <div class="score-num score-away" id="scoreAway" onclick="scoreClick('away',event)">00</div>
       <span class="score-hint">click +1 · dbl −1</span>
     </div>
   </div>
