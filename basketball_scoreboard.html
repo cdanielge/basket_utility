@@ -39,6 +39,9 @@
     justify-content: center;
     padding: 8px 0 4px;
     border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: relative;
+    z-index: 1;
   }
 
   .clock-wrap {
@@ -112,6 +115,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     min-height: 0;
+    overflow: hidden;
   }
 
   .team-block {
@@ -159,7 +163,7 @@
 <body>
 
   <div class="clock-section" id="clockSection">
-    <div class="clock-wrap stopped" id="clockWrap">
+    <div class="clock-wrap stopped" id="clockWrap" ondblclick="addTime(10)" title="Doble click: +10 seg">
       <span class="clock-num" id="cM1">1</span>
       <span class="clock-num" id="cM2">0</span>
       <span class="clock-sep">:</span>
@@ -281,6 +285,11 @@
     const el = document.getElementById(team === 'home' ? 'scoreHome' : 'scoreAway');
     el.classList.add('flash');
     setTimeout(() => el.classList.remove('flash'), 160);
+  }
+
+  function addTime(secs) {
+    s.secs += secs;
+    renderClock();
   }
 
   function editClock() {
