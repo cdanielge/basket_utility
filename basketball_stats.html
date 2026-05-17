@@ -699,12 +699,7 @@ tr.row-foul4 td { background: rgba(245,165,36,.08) !important; }
 .kpi-row    { animation: fadeUp .3s .08s ease both; }
 .cat-block  { animation: fadeUp .3s .1s ease both; }
 
-/* ── FIX #5: indicador visual cuando encestes > intentos ── */
-.shot-warn {
-  outline: 1px solid var(--amber);
-  border-radius: var(--radius);
-  color: var(--amber) !important;
-}
+
 </style>
 </head>
 <body>
@@ -1023,18 +1018,6 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// FIX #5: valida que encestes <= intentos y aplica warning visual
-function validateShots(id, keyMade, keyAtt) {
-  const p = stats.find(x => x.id === id);
-  if (!p) return;
-  const row = document.querySelector('[data-id="' + id + '"]');
-  if (!row) return;
-  const madeSpan = row.querySelector('[data-stat="' + keyMade + '"]');
-  if (!madeSpan) return;
-  const isInvalid = p[keyAtt] > 0 && p[keyMade] > p[keyAtt];
-  madeSpan.classList.toggle('shot-warn', isInvalid);
-}
-
 const _clickTimers = {};
 const DBL_DELAY    = 260;
 
@@ -1063,13 +1046,15 @@ function shotClick(id, keyMade, keyAtt, ptsVal, e) {
       const p = stats.find(x => x.id === id);
       if (!p) return;
       p[keyMade]++;
+      p[keyAtt]++;
       p.pts += ptsVal;
       saveToStorage();
       updateStatCell(id, keyMade, p[keyMade]);
-      updateStatCell(id, 'pts', p.pts);
+      updateStatCell(id, keyAtt,  p[keyAtt]);
+      updateStatCell(id, 'pts',   p.pts);
       flashStat(id, keyMade, 'inc');
-      flashStat(id, 'pts', 'inc');
-      validateShots(id, keyMade, keyAtt); // FIX #5
+      flashStat(id, keyAtt,  'inc');
+      flashStat(id, 'pts',   'inc');
     }, DBL_DELAY);
   } else {
     delete _clickTimers[k];
@@ -1079,14 +1064,12 @@ function shotClick(id, keyMade, keyAtt, ptsVal, e) {
     p.pts = Math.max(0, p.pts - ptsVal);
     saveToStorage();
     updateStatCell(id, keyMade, p[keyMade]);
-    updateStatCell(id, 'pts', p.pts);
+    updateStatCell(id, 'pts',   p.pts);
     flashStat(id, keyMade, 'dec');
-    flashStat(id, 'pts', 'dec');
-    validateShots(id, keyMade, keyAtt); // FIX #5
+    flashStat(id, 'pts',   'dec');
   }
 }
 
-// FIX #5: también valida al modificar intentos
 function attClick(id, keyMade, keyAtt, e) {
   const k = id + '_' + keyAtt;
   clearTimeout(_clickTimers[k]);
@@ -1095,13 +1078,13 @@ function attClick(id, keyMade, keyAtt, e) {
       delete _clickTimers[k];
       inc(id, keyAtt);
       flashStat(id, keyAtt, 'inc');
-      validateShots(id, keyMade, keyAtt);
     }, DBL_DELAY);
   } else {
     delete _clickTimers[k];
+    const p = stats.find(x => x.id === id);
+    if (!p || p[keyAtt] <= p[keyMade]) return;
     dec(id, keyAtt);
     flashStat(id, keyAtt, 'dec');
-    validateShots(id, keyMade, keyAtt);
   }
 }
 
@@ -1164,10 +1147,10 @@ function buildTable() {
   const tbody = document.getElementById('players-table');
   tbody.innerHTML = '';
   stats.forEach(p => tbody.appendChild(createRow(p)));
-  // Re-validar warnings al cargar datos existentes
+  // Garantizar invariante: intentos >= anotados (corrige datos legacy)
   stats.forEach(p => {
-    validateShots(p.id, 't1', 't1a');
-    validateShots(p.id, 't2', 't2a');
+    p.t1a = Math.max(p.t1a, p.t1);
+    p.t2a = Math.max(p.t2a, p.t2);
   });
   const addRow = document.createElement('tr');
   addRow.className = 'row-add';
